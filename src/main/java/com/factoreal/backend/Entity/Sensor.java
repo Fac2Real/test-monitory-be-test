@@ -37,5 +37,8 @@
        @Column(name = "threshold") // 임계치
        private Integer threshold;
 
+       @Column(name = "registered", nullable = false)
+       private boolean registered;
+
        // 기본 생성자, getter/setter, 필요 시 빌더   생성
    }

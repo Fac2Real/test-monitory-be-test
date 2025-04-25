@@ -32,5 +32,13 @@ public class SensorService {
         .collect(Collectors.toList());
     }
 
+    // 미등록 센서 리스트 조회 ( BE -> FE )
+    public List<SensorDto> getUnregisteredSensors() {
+        return repo.findByRegisteredFalseAndSensorIdIsNotNull().stream()
+                .filter(s -> !s.getSensorId().isBlank())
+                .map(s -> new SensorDto(s.getSensorId(), s.getSensorType()))
+                .collect(Collectors.toList());
+    }
+
 
 }

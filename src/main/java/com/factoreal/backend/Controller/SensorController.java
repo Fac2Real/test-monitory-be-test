@@ -42,4 +42,11 @@ public class SensorController {
     public ResponseEntity<List<SensorDto>> list() {
         return ResponseEntity.ok(service.getAllSensors());
     }
+
+    // 미등록 센서 리스트 조회 ( BE -> FE )
+    @GetMapping("/unregistered")
+    public ResponseEntity<List<SensorDto>> getUnregisteredSensors() {
+        List<SensorDto> sensors = service.getUnregisteredSensors();
+        return ResponseEntity.ok(sensors);
+    }
 }
