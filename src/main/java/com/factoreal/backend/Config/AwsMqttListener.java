@@ -36,7 +36,7 @@ public class AwsMqttListener {
         String topic = "#";
 
         // 🟢 고유한 MQTT 클라이언트 ID 생성
-        String clientId = "SPRING";
+        String clientId = "SPRING_Dain";
 
         // 🔥 파일 존재 여부 확인 로그 추가
         log.info("✅ root.pem exists: {}", new java.io.File("src/main/resources/certs/root.pem").exists());

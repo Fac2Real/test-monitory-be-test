@@ -24,7 +24,7 @@
 
        @Column(name = "sensor_type") // 센서종류
        private String sensorType;
-
+ 
        @Column(name = "sensor_status") // 센서상태
        private String sensorStatus;
 
@@ -40,5 +40,4 @@
        @Column(name = "registered", nullable = false)
        private boolean registered;
 
-       // 기본 생성자, getter/setter, 필요 시 빌더   생성
    }

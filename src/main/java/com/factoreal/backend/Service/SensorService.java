@@ -7,6 +7,7 @@ import com.factoreal.backend.Entity.Sensor;
 import org.springframework.stereotype.Service;
 
 import com.factoreal.backend.Dto.SensorDto;
+import com.factoreal.backend.Dto.SensorUpdateDto;
 import com.factoreal.backend.Repository.SensorRepository;
 
 @Service
@@ -22,6 +23,7 @@ public class SensorService {
         Sensor sens = new Sensor();
         sens.setSensorId(dto.getSensorId());
         sens.setSensorType(dto.getSensorType());
+        // sens.setSensorStatus(dto.getSensorStatus());
         return repo.save(sens);
     }
 
@@ -40,5 +42,14 @@ public class SensorService {
                 .collect(Collectors.toList());
     }
 
+    // Sensor Table 업데이트
+    public void updateSensor(String sensorId, SensorUpdateDto dto) {
+        Sensor sensor = repo.findBySensorId(sensorId)
+            .orElseThrow(() -> new RuntimeException("SensorID = "+sensorId+" 센서를 찾을 수 없습니다."));
 
+        sensor.setSensorPurpose(dto.getSensorPurpose());
+        sensor.setLocation(dto.getLocation());
+        sensor.setThreshold(dto.getThreshold());
+        repo.save(sensor);
+    }
 }
