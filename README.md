@@ -106,4 +106,14 @@ git commit -m "fix     | sprint0 | IOT-009 | H2 연결 오류 수정         | �
 git commit -m "config  | sprint0 | IOT-000 | Spring Boot 3.4.4 적용    | 김우영"
 git commit -m "chore   | sprint1 | IOT-999 | 커밋 컨벤션 README 정리   | 정민석"
 ```
+<<<<<<< HEAD
 >>>>>>> 594bb0e (docs | 없음 | 없음 | git commit convention | 유승희)
+=======
+
+---
+### URL
+| 유형 | URL |
+|------|--------------|
+| h2 (TEMP) | localhost:8080/h2-console |
+| swagger | localhost:8080/docs |
+>>>>>>> d20f72a (docs | 없음 | 없음 |readme 수정 - url 정보| 유승희)
