@@ -19,7 +19,7 @@
        @GeneratedValue(strategy = GenerationType.IDENTITY)
        private Long id;
 
-       @Column(name = "sensor_id") // 센서ID
+       @Column(name = "sensor_id", unique = true) // 센서ID
        private String sensorId;
 
        @Column(name = "sensor_type") // 센서종류

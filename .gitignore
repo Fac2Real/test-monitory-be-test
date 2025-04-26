@@ -35,3 +35,10 @@ out/
 
 ### VS Code ###
 .vscode/
+
+
+### MQTT(shadow) 인증서 보안 경로 제외
+src/main/resources/certs/
+
+# 예시: .gitignore
+*.lck
