@@ -1,14 +1,12 @@
    package com.factoreal.backend.Entity;
 
-   import jakarta.persistence.Entity;
-   import jakarta.persistence.Id;
-   import jakarta.persistence.Table;
-   import jakarta.persistence.Column;
+   import jakarta.persistence.*;
    import lombok.Getter;
    import lombok.Setter;
    import lombok.AllArgsConstructor;
    import lombok.NoArgsConstructor;
 
+   // 센서 정보 Entity
    @Entity
    @Table(name = "sensor")
    @Getter
@@ -16,7 +14,11 @@
    @AllArgsConstructor
    @NoArgsConstructor
    public class Sensor {
+
        @Id
+       @GeneratedValue(strategy = GenerationType.IDENTITY)
+       private Long id;
+
        @Column(name = "sensor_id") // 센서ID
        private String sensorId;
 
