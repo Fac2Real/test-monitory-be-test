@@ -1,4 +1,4 @@
-package com.factoreal.backend.Util;
+package com.factoreal.backend.util;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openssl.PEMKeyPair;

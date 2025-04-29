@@ -1,19 +1,20 @@
-package com.factoreal.backend.Controller;
+package com.factoreal.backend.controller;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.factoreal.backend.Entity.Sensor;
 import io.swagger.v3.oas.annotations.Operation;
+import com.factoreal.backend.service.SensorService;
+
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.factoreal.backend.Dto.SensorDto;
-import com.factoreal.backend.Dto.SensorUpdateDto;
-import com.factoreal.backend.Service.SensorService;
+import com.factoreal.backend.dto.SensorDto;
+import com.factoreal.backend.dto.SensorUpdateDto;
+import com.factoreal.backend.entity.Sensor;
 
 @RestController
 @RequestMapping("/api/sensors")
@@ -28,7 +29,8 @@ public class SensorController {
 
     // 센서 등록 (임시 코드)
     @PostMapping
-    @Operation(summary = "센서 등록 (임시 기능)", description = "센서 정보를 수동으로 등록하는 임시 메서드", hidden = true)
+    // @Operation(summary = "센서 등록 (임시 기능)", description = "센서 정보를 수동으로 등록하는 임시 메서드", hidden = true)
+    @Operation(summary = "센서 등록 (임시 기능)", description = "센서 정보를 수동으로 등록하는 임시 메서드", hidden = false)
     public ResponseEntity<Map<String, Boolean>> createSensor(@RequestBody SensorDto dto) {
         Map<String, Boolean> response = new HashMap<>();
         try {
@@ -65,4 +67,13 @@ public class SensorController {
         service.updateSensor(sensorId, dto);
         return ResponseEntity.noContent().build();
     }
+
+    // @PostMapping("/{sensorId}/registered")
+    // @Operation(summary = "센서 Registered 상태 변경", description = "UI에서 센서 선택 시 등록 상태(registered)를 변경(Fe -> BE)")
+    // public ResponseEntity<Void> changeRegistered(
+    //     @PathVariable("sensorId") String sensorId,
+    //     @RequestParam boolean registered) {
+    //         service.updateRegistered(sensorId, registered);
+    //         return ResponseEntity.noContent().build();
+    //     }
 }
