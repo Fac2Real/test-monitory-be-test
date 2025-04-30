@@ -23,4 +23,5 @@ public class Zone {
 
     @Column(name = "zone_name", nullable = false)
     private String zoneName; // 공간명
+    
 }
