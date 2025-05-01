@@ -29,7 +29,7 @@ dependencies {
 	compileOnly 'org.projectlombok:lombok'
 
 	// MySQL Connector
-	runtimeOnly 'com.mysql:mysql-connector-j'
+	runtimeOnly 'com.mysql:mysql-connector-j:8.0.33'
 	// H2 Database
 	// runtimeOnly 'com.h2database:h2'
 
@@ -45,6 +45,10 @@ dependencies {
 
 	// swagger doc
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
+
+	// flyway db
+	implementation 'org.flywaydb:flyway-core'
+	implementation 'org.flywaydb:flyway-mysql'
 }
 
 tasks.named('test') {

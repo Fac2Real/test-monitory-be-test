@@ -13,7 +13,7 @@
    @Setter
    @AllArgsConstructor
    @NoArgsConstructor
-   public class Sensor {
+   public class  Sensor {
 
        @Id
        @GeneratedValue(strategy = GenerationType.IDENTITY)
