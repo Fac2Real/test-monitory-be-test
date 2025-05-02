@@ -1,20 +1,14 @@
 package com.factoreal.backend.controller;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import io.swagger.v3.oas.annotations.Operation;
+import com.factoreal.backend.dto.SensorDto;
+import com.factoreal.backend.dto.SensorUpdateDto;
 import com.factoreal.backend.service.SensorService;
-
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.factoreal.backend.dto.SensorDto;
-import com.factoreal.backend.dto.SensorUpdateDto;
-import com.factoreal.backend.entity.Sensor;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/sensors")

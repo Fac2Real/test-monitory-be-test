@@ -1,6 +1,6 @@
-package com.factoreal.backend.Service;
+package com.factoreal.backend.service;
 
-import com.factoreal.backend.Dto.SensorDto;
+import com.factoreal.backend.dto.SensorDto;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;

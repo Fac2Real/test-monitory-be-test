@@ -1,6 +1,6 @@
-package com.factoreal.backend.Config;
+package com.factoreal.backend.config;
 
-import com.factoreal.backend.Util.SslUtil;
+import com.factoreal.backend.util.SslUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
