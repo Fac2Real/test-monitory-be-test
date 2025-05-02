@@ -1,4 +1,4 @@
-package com.factoreal.backend.Util;
+package com.factoreal.backend.util;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
