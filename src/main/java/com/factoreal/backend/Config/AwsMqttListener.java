@@ -1,10 +1,11 @@
-package com.factoreal.backend.Config;
+package com.factoreal.backend.config;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.factoreal.backend.Dto.SensorDto;
-import com.factoreal.backend.Service.SensorService;
-import com.factoreal.backend.Util.SslUtil;
+import com.factoreal.backend.dto.SensorDto;
+import com.factoreal.backend.service.SensorService;
+import com.factoreal.backend.util.SslUtil;
+
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
