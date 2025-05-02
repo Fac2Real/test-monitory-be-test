@@ -27,21 +27,21 @@ public class SensorController {
         this.service = service;
     }
 
-    // 센서 등록 (임시 코드)
-    @PostMapping
-    // @Operation(summary = "센서 등록 (임시 기능)", description = "센서 정보를 수동으로 등록하는 임시 메서드", hidden = true)
-    @Operation(summary = "센서 등록 (임시 기능)", description = "센서 정보를 수동으로 등록하는 임시 메서드", hidden = false)
-    public ResponseEntity<Map<String, Boolean>> createSensor(@RequestBody SensorDto dto) {
-        Map<String, Boolean> response = new HashMap<>();
-        try {
-            Sensor sens = service.saveSensor(dto);
-            response.put("success", true);
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            response.put("success", false);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-        }
-    }
+    // // 센서 등록 (임시 코드)
+    // @PostMapping
+    // // @Operation(summary = "센서 등록 (임시 기능)", description = "센서 정보를 수동으로 등록하는 임시 메서드", hidden = true)
+    // @Operation(summary = "센서 등록 (임시 기능)", description = "센서 정보를 수동으로 등록하는 임시 메서드", hidden = false)
+    // public ResponseEntity<Map<String, Boolean>> createSensor(@RequestBody SensorDto dto) {
+    //     Map<String, Boolean> response = new HashMap<>();
+    //     try {
+    //         Sensor sens = service.saveSensor(dto);
+    //         response.put("success", true);
+    //         return ResponseEntity.ok(response);
+    //     } catch (Exception e) {
+    //         response.put("success", false);
+    //         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    //     }
+    // }
 
     // 전체 센서 리스트 조회 ( BE -> FE 센서ID, 센서종류 넘기기 )
     @GetMapping
