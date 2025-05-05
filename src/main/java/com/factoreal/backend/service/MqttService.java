@@ -37,9 +37,11 @@ public class MqttService {
             try{
                 ObjectMapper mapper = new ObjectMapper();
                 JsonNode jsonNode = mapper.readTree(payload);
+                // mqtt에서 전달되는 뎁스를 따라가야함
+                JsonNode reported  = jsonNode.at("/current/state/reported");
                 log.info("📥 MQTT 수신 (topic: {}): {}", t, jsonNode);
-                String sensorId = jsonNode.at("/id").asText();
-                String type = jsonNode.at("/type").asText();
+                String sensorId = reported.at("/sensorId").asText();
+                String type = reported.at("/type").asText();
                 SensorDto dto = new SensorDto(sensorId, type);
                 sensorService.saveSensor(dto); // 중복이면 예외 발생
                 log.info("✅ 센서 저장 완료: {}", sensorId);
