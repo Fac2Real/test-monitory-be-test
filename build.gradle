@@ -53,6 +53,9 @@ dependencies {
 	implementation 'software.amazon.awssdk:secretsmanager'
 	implementation 'software.amazon.awssdk:regions'
 	implementation 'software.amazon.awssdk:iotdataplane'
+	implementation 'software.amazon.awssdk:sns'
+
+	// Websocket
 	implementation("org.springframework.boot:spring-boot-starter-websocket:3.4.5")
 }
 
