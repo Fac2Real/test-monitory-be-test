@@ -55,6 +55,11 @@ dependencies {
 	implementation 'software.amazon.awssdk:iotdataplane'
 	implementation 'software.amazon.awssdk:sns'
 
+	// AWS 테스트용 LocalStack
+	testImplementation 'org.testcontainers:junit-jupiter'
+	testImplementation 'org.testcontainers:localstack'
+	testImplementation 'software.amazon.awssdk:sns'
+
 	// Websocket
 	implementation("org.springframework.boot:spring-boot-starter-websocket:3.4.5")
 }
