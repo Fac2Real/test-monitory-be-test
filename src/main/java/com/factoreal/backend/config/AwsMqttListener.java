@@ -85,7 +85,8 @@ public class AwsMqttListener {
 
                 String sensorId = jsonNode.at("/id").asText();
                 String type = jsonNode.at("/type").asText();
-                SensorDto dto = new SensorDto(sensorId, type);
+//                SensorDto dto = new SensorDto(sensorId, type);
+                SensorDto dto = new SensorDto();
                 sensorService.saveSensor(dto); // 중복이면 예외 발생
                 log.info("✅ 센서 저장 완료: {}", sensorId);
             } catch (DataIntegrityViolationException e) {
