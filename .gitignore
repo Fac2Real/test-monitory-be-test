@@ -40,6 +40,9 @@ out/
 ### MQTT(shadow) 인증서 보안 경로 제외
 src/main/resources/certs/
 
+### 환경변수 파일
+.env
+
 # 예시: .gitignore
 *.lck
 
@@ -94,12 +97,6 @@ cmake-build-*/
 
 # Mongo Explorer plugin
 .idea/**/mongoSettings.xml
-
-# File-based project format
-*.iws
-
-# IntelliJ
-out/
 
 # mpeltonen/sbt-idea plugin
 .idea_modules/

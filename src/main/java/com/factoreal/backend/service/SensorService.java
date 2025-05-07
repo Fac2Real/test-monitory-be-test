@@ -1,14 +1,15 @@
-package com.factoreal.backend.Service;
+package com.factoreal.backend.service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.factoreal.backend.Entity.Sensor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import com.factoreal.backend.Dto.SensorDto;
-import com.factoreal.backend.Dto.SensorUpdateDto;
-import com.factoreal.backend.Repository.SensorRepository;
+import com.factoreal.backend.dto.SensorDto;
+import com.factoreal.backend.dto.SensorUpdateDto;
+import com.factoreal.backend.entity.Sensor;
+import com.factoreal.backend.repository.SensorRepository;
 
 @Service
 public class SensorService {
@@ -43,6 +44,7 @@ public class SensorService {
     }
 
     // Sensor Table 업데이트
+    @Transactional
     public void updateSensor(String sensorId, SensorUpdateDto dto) {
         Sensor sensor = repo.findBySensorId(sensorId)
             .orElseThrow(() -> new RuntimeException("SensorID = "+sensorId+" 센서를 찾을 수 없습니다."));
@@ -52,4 +54,14 @@ public class SensorService {
         sensor.setThreshold(dto.getThreshold());
         repo.save(sensor);
     }
+
+    // // Sensor Table Registered 업데이트
+    // @Transactional
+    // public void updateRegistered(String sensorId, boolean registered) {
+    //     Sensor sensor = repo.findBySensorId(sensorId)
+    //         .orElseThrow(() -> new RuntimeException("SensorID = "+sensorId+" 센서를 찾을 수 없습니다."));
+    //     sensor.setRegistered(registered);
+    //     repo.save(sensor);
+    // }
+
 }

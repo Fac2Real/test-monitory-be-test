@@ -29,7 +29,7 @@ dependencies {
 	compileOnly 'org.projectlombok:lombok'
 
 	// MySQL Connector
-	runtimeOnly 'com.mysql:mysql-connector-j:8.0.33'
+	runtimeOnly 'com.mysql:mysql-connector-j'
 	// H2 Database
 	// runtimeOnly 'com.h2database:h2'
 
@@ -49,6 +49,12 @@ dependencies {
 	// flyway db
 	implementation 'org.flywaydb:flyway-core'
 	implementation 'org.flywaydb:flyway-mysql'
+
+	// AWS SDK for IoT Data Plane
+	implementation platform('software.amazon.awssdk:bom:2.25.19')
+	implementation 'software.amazon.awssdk:secretsmanager'
+	implementation 'software.amazon.awssdk:regions'
+	implementation 'software.amazon.awssdk:iotdataplane'
 }
 
 tasks.named('test') {
