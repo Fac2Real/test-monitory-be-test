@@ -42,8 +42,9 @@ public class MqttService {
                 log.info("📥 MQTT 수신 (topic: {}): {}", t, jsonNode);
                 String sensorId = reported.at("/sensorId").asText();
                 String type = reported.at("/type").asText();
-                String location = reported.at("/spaceId").asText();
-                SensorDto dto = new SensorDto(sensorId, type , location);
+                String zoneId = reported.at("/zoneId").asText();
+                String equipId = reported.at("/equipId").asText();
+                SensorDto dto = new SensorDto(sensorId, type , zoneId, equipId);
                 sensorService.saveSensor(dto); // 중복이면 예외 발생
                 log.info("✅ 센서 저장 완료: {}", sensorId);
             } catch (DataIntegrityViolationException e) {

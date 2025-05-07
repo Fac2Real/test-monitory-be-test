@@ -44,14 +44,6 @@ public class SensorController {
         return ResponseEntity.ok(service.getAllSensors());
     }
 
-    // 미등록 센서 리스트 조회 ( BE -> FE )
-    @GetMapping("/unregistered")
-    @Operation(summary = "미등록 센서 리스트 조회", description = "미등록 센서 데이터 조회 (BE -> FE)")
-    public ResponseEntity<List<SensorDto>> getUnregisteredSensors() {
-        List<SensorDto> sensors = service.getUnregisteredSensors();
-        return ResponseEntity.ok(sensors);
-    }
-
     // DB Sensor Table 업데이트 ( FE -> BE 센서ID 매핑해서 센서목적, 위치, 임계치 업데이트 )
     @PostMapping("/{sensorId}")
     @Operation(summary = "센서 정보 업데이트", description = "센서ID 매핑해서 센서목적, 위치, 임계치 업데이트 (FE -> BE) ")
@@ -61,13 +53,4 @@ public class SensorController {
         service.updateSensor(sensorId, dto);
         return ResponseEntity.noContent().build();
     }
-
-    // @PostMapping("/{sensorId}/registered")
-    // @Operation(summary = "센서 Registered 상태 변경", description = "UI에서 센서 선택 시 등록 상태(registered)를 변경(Fe -> BE)")
-    // public ResponseEntity<Void> changeRegistered(
-    //     @PathVariable("sensorId") String sensorId,
-    //     @RequestParam boolean registered) {
-    //         service.updateRegistered(sensorId, registered);
-    //         return ResponseEntity.noContent().build();
-    //     }
 }

@@ -41,22 +41,4 @@ public class  Sensor {
     @JoinColumn(name = "equip_id", nullable = false)
     private Equip equip; // 설비 고유 ID
 
-
-
-    // To Do 아래 삭제 예정
-    @Column(name = "sensor_status") // 센서상태
-    private String sensorStatus;
-
-    @Column(name = "sensor_purpose") // 센서목적
-    private String sensorPurpose;
-
-    @Column(name = "location")   // 위치
-    private String location;
-
-    @Column(name = "threshold") // 임계치
-    private Integer threshold;
-
-    @Column(name = "registered", nullable = false)
-    private boolean registered;
-
 }

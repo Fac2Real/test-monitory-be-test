@@ -1,8 +1,15 @@
 package com.factoreal.backend.service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.factoreal.backend.entity.Equip;
+import com.factoreal.backend.entity.Zone;
+import com.factoreal.backend.repository.EquipRepository;
+import com.factoreal.backend.repository.ZoneRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -11,36 +18,39 @@ import com.factoreal.backend.dto.SensorUpdateDto;
 import com.factoreal.backend.entity.Sensor;
 import com.factoreal.backend.repository.SensorRepository;
 
+@Slf4j
 @Service
+@RequiredArgsConstructor
 public class SensorService {
     private final SensorRepository repo;
-
-    public SensorService(SensorRepository repo) {
-        this.repo = repo;
-    }
+    private final ZoneRepository zoneRepo;
+    private final EquipRepository equipRepo;
 
     // 센서 등록
     public Sensor saveSensor(SensorDto dto) {
+        Optional<Zone> zoneOptional = zoneRepo.findById(dto.getZoneId());
+        if(zoneOptional.isEmpty()) {
+            log.error("Zone not found");
+            return null;
+        }
+        Optional<Equip> equipOptional = equipRepo.findById(dto.getEquipId());
+        if(equipOptional.isEmpty()) {
+            log.error("Equip not found");
+            return null;
+        }
         Sensor sens = new Sensor();
         sens.setSensorId(dto.getSensorId());
         sens.setSensorType(dto.getSensorType());
-        // sens.setSensorStatus(dto.getSensorStatus());
+        sens.setZone(zoneOptional.get());
+        sens.setEquip(equipOptional.get());
         return repo.save(sens);
     }
 
     // 센서 전체 리스트 조회
     public List<SensorDto> getAllSensors() {
         return repo.findAll().stream()
-        .map(s -> new SensorDto(s.getSensorId(), s.getSensorType(),s.getLocation()))
+        .map(s -> new SensorDto(s.getSensorId(), s.getSensorType(),s.getZone().getZoneId(),s.getEquip().getEquipId()))
         .collect(Collectors.toList());
-    }
-
-    // 미등록 센서 리스트 조회 ( BE -> FE )
-    public List<SensorDto> getUnregisteredSensors() {
-        return repo.findByRegisteredFalseAndSensorIdIsNotNull().stream()
-                .filter(s -> !s.getSensorId().isBlank())
-                .map(s -> new SensorDto(s.getSensorId(), s.getSensorType(), s.getLocation()))
-                .collect(Collectors.toList());
     }
 
     // Sensor Table 업데이트
@@ -48,20 +58,9 @@ public class SensorService {
     public void updateSensor(String sensorId, SensorUpdateDto dto) {
         Sensor sensor = repo.findBySensorId(sensorId)
             .orElseThrow(() -> new RuntimeException("SensorID = "+sensorId+" 센서를 찾을 수 없습니다."));
-
-        sensor.setSensorPurpose(dto.getSensorPurpose());
-        sensor.setLocation(dto.getLocation());
-        sensor.setThreshold(dto.getThreshold());
+//        sensor.setSensorPurpose(dto.getSensorPurpose());
+//        sensor.setLocation(dto.getLocation());
+//        sensor.setThreshold(dto.getThreshold());
         repo.save(sensor);
     }
-
-    // // Sensor Table Registered 업데이트
-    // @Transactional
-    // public void updateRegistered(String sensorId, boolean registered) {
-    //     Sensor sensor = repo.findBySensorId(sensorId)
-    //         .orElseThrow(() -> new RuntimeException("SensorID = "+sensorId+" 센서를 찾을 수 없습니다."));
-    //     sensor.setRegistered(registered);
-    //     repo.save(sensor);
-    // }
-
 }
