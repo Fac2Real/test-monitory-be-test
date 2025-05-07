@@ -55,6 +55,12 @@ dependencies {
 	implementation 'software.amazon.awssdk:secretsmanager'
 	implementation 'software.amazon.awssdk:regions'
 	implementation 'software.amazon.awssdk:iotdataplane'
+
+	// kafka
+	implementation 'org.springframework.kafka:spring-kafka'
+
+	// WebSocket
+	implementation 'org.springframework.boot:spring-boot-starter-websocket'
 }
 
 tasks.named('test') {
