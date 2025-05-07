@@ -8,7 +8,7 @@ import com.factoreal.backend.entity.Sensor;
 
 import java.util.List;
 
-public interface SensorRepository extends JpaRepository<Sensor, Long> {
+public interface SensorRepository extends JpaRepository<Sensor, String> {
     Optional<Sensor> findBySensorId(String sensorId);
 
     // 미등록 센서 리스트 조회 ( BE -> FE )

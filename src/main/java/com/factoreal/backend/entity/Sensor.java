@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 
 // 센서 정보 Entity
 @Entity
-@Table(name = "sensor")
+@Table(name = "sensor_info")
 @Getter
 @Setter
 @AllArgsConstructor

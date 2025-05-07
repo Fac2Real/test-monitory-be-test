@@ -36,8 +36,14 @@ public class MqttConfig {
         }
         MqttConnectOptions options = new MqttConnectOptions();
         options.setSocketFactory(sslFactory);
+        // 영구 저장소 비활성화
+        options.setCleanSession(true);
+        // 자동 재연결 설정
+        options.setAutomaticReconnect(true);
+        // 연결 타임아웃 설정 (5초)
+        options.setConnectionTimeout(5);
 
-        MqttClient client = new MqttClient(broker, clientId);
+        MqttClient client = new MqttClient(broker, clientId, null);
         client.connect(options);
         log.info("✅Mqtt 연결 성공!");
         return client;
