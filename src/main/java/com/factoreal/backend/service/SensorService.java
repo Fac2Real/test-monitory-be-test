@@ -31,7 +31,7 @@ public class SensorService {
     // 센서 전체 리스트 조회
     public List<SensorDto> getAllSensors() {
         return repo.findAll().stream()
-        .map(s -> new SensorDto(s.getSensorId(), s.getSensorType()))
+        .map(s -> new SensorDto(s.getSensorId(), s.getSensorType(),s.getLocation()))
         .collect(Collectors.toList());
     }
 
@@ -39,7 +39,7 @@ public class SensorService {
     public List<SensorDto> getUnregisteredSensors() {
         return repo.findByRegisteredFalseAndSensorIdIsNotNull().stream()
                 .filter(s -> !s.getSensorId().isBlank())
-                .map(s -> new SensorDto(s.getSensorId(), s.getSensorType()))
+                .map(s -> new SensorDto(s.getSensorId(), s.getSensorType(), s.getLocation()))
                 .collect(Collectors.toList());
     }
 
