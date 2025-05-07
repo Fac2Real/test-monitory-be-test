@@ -1,4 +1,4 @@
-package com.factoreal.backend.entity.enums;
+package com.factoreal.backend.strategy.enums;
 
 import lombok.Getter;
 
@@ -9,8 +9,9 @@ import java.util.stream.Collectors;
 
 @Getter
 public enum RiskLevel {
-    WARN(1),    // 주의 단계
-    DANGER(2);    // 위험 단계
+    INFO(0),
+    WARNING(1),    // 주의 단계
+    CRITICAL(2);    // 위험 단계
     private final int priority;
     RiskLevel(int priority) {
         this.priority = priority;

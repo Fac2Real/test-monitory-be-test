@@ -6,16 +6,17 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 @Slf4j
-@Component("WEB")
-// https://stir.tistory.com/516를 참고하여 구현
-public class WebPushNotificationStrategy implements NotificationStrategy {
+@Component("APP")
+public class AppPushNotificationStrategy implements NotificationStrategy {
+
+
     @Override
     public void send(AlarmEvent alarmEvent) {
-        log.info("🍿 Web Push Notification Strategy");
+        log.info("📲 App Push Notification Strategy.");
     }
 
     @Override
     public RiskLevel getSupportedLevel() {
-        return RiskLevel.INFO;
+        return RiskLevel.WARNING;
     }
 }

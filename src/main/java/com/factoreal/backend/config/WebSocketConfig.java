@@ -15,7 +15,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void configureMessageBroker(MessageBrokerRegistry registry) {
         // 클라이언트가 구독할 수 있는 prefix 경로 활성화.
         // 예) 클라이언트가 "/topic/알림" 으로 구독하면 해당 경로로 메세지를 받을 수 있음.
-        registry.enableSimpleBroker("/topic");
+        registry.enableSimpleBroker("/topic/notify");
         // 클라이언트가 서버로 메세지를 보낼 때 사용할 prefix 경로
         // 예) 클라이언트가 "/app/send" 로 메세지를 보내면, 서버에서는 @MessageMapping("/send") 으로 처리할 수 있습니다.
 //        registry.setApplicationDestinationPrefixes("/app"); // 클 -> 서버로 받을 기능은 아직 없어서 주석처리.

@@ -1,6 +1,6 @@
 package com.factoreal.backend.strategy;
 
-import com.factoreal.backend.entity.enums.RiskLevel;
+import com.factoreal.backend.strategy.enums.RiskLevel;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

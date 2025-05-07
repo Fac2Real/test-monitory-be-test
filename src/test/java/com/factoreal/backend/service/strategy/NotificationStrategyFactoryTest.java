@@ -1,6 +1,6 @@
 package com.factoreal.backend.service.strategy;
 
-import com.factoreal.backend.entity.enums.RiskLevel;
+import com.factoreal.backend.strategy.enums.RiskLevel;
 import com.factoreal.backend.strategy.NotificationStrategy;
 import com.factoreal.backend.strategy.NotificationStrategyFactory;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,7 +19,7 @@ public class NotificationStrategyFactoryTest {
     private NotificationStrategy smsStrategy;
 
     private NotificationStrategyFactory factory;
-
+    //https://techblog.woowahan.com/2638/를 참고함.
     @BeforeEach
     void setUp(){
         // Mock 마다 strategy 생성
@@ -28,9 +28,9 @@ public class NotificationStrategyFactoryTest {
         smsStrategy = mock(NotificationStrategy.class);
 
         // 각 전략이 지원하는 RiskLevel 설정
-        when(appStrategy.getSupportedLevel()).thenReturn(RiskLevel.WARN);
-        when(webStrategy.getSupportedLevel()).thenReturn(RiskLevel.WARN);
-        when(smsStrategy.getSupportedLevel()).thenReturn(RiskLevel.DANGER);
+        when(appStrategy.getSupportedLevel()).thenReturn(RiskLevel.WARNING);
+        when(webStrategy.getSupportedLevel()).thenReturn(RiskLevel.WARNING);
+        when(smsStrategy.getSupportedLevel()).thenReturn(RiskLevel.CRITICAL);
 
         // factory 빈을 초기화할 때 app, web, sms를 주입하는 로직.
         factory = new NotificationStrategyFactory(List.of(appStrategy,webStrategy,smsStrategy));
@@ -38,7 +38,7 @@ public class NotificationStrategyFactoryTest {
 
     @Test
     void testGetStrategyForWarn(){
-        List<NotificationStrategy> result = factory.getStrategiesForLevel(RiskLevel.WARN);
+        List<NotificationStrategy> result = factory.getStrategiesForLevel(RiskLevel.WARNING);
         // for (NotificationStrategy strategy : result) {
         //     System.out.println("Strategy: " + strategy + ", Level: " + strategy.getSupportedLevel());
         // }
@@ -51,7 +51,7 @@ public class NotificationStrategyFactoryTest {
 
     @Test
     void testGetStrategyForDanger(){
-        List<NotificationStrategy> result = factory.getStrategiesForLevel(RiskLevel.DANGER);
+        List<NotificationStrategy> result = factory.getStrategiesForLevel(RiskLevel.CRITICAL);
         // for (NotificationStrategy strategy : result) {
         //     System.out.println("Strategy: " + strategy + ", Level: " + strategy.getSupportedLevel());
         // }

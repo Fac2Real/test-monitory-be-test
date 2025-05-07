@@ -1,7 +1,8 @@
 package com.factoreal.backend.strategy;
 
+import com.factoreal.backend.strategy.enums.AlarmEvent;
 import com.factoreal.backend.entity.Worker;
-import com.factoreal.backend.entity.enums.RiskLevel;
+import com.factoreal.backend.strategy.enums.RiskLevel;
 import com.factoreal.backend.repository.WorkerRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,8 +20,14 @@ public class SmsNotificationStrategy implements NotificationStrategy {
     // AWS SNS 서비스 사용을 위한 객체
     private final SnsClient snsClient;
     private final WorkerRepository workerRepository;
+
+    private static final String userId = "alarm-test";
     @Override
-    public void send(String userId, String message) {
+    public void send(AlarmEvent alarmEvent) {
+        log.info("📬 SMS Notification Strategy.");
+        // Todo 공간에 있는 작업자 목록 가져오기
+        // Wearable 앱이 선행되어야함...
+        // 공간 정보는 KafkaConsumer에서 만든 alarmEvent 객체에 있음.
         Optional<Worker> workerOptional = workerRepository.findById(userId);
         if  (workerOptional.isEmpty()) {
             log.error("❌해당 아이디를 가진 직원이 없습니다.{}", userId);
@@ -28,7 +35,7 @@ public class SmsNotificationStrategy implements NotificationStrategy {
         }
         try{
             PublishRequest publishRequest = PublishRequest.builder()
-                    .message(message)
+                    .message(alarmEvent.messageBody())
                     .phoneNumber(workerOptional.get().getPhoneNumber()) // 형식 (국가번호)전화번호 => +82 10-1234-1234
                     .build();
 
@@ -41,6 +48,6 @@ public class SmsNotificationStrategy implements NotificationStrategy {
 
     @Override
     public RiskLevel getSupportedLevel() {
-        return RiskLevel.DANGER;
+        return RiskLevel.CRITICAL;
     }
 }
