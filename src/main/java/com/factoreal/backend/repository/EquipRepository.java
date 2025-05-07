@@ -7,5 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.factoreal.backend.entity.Equip;
 
 public interface EquipRepository extends JpaRepository<Equip, String> {
-    List<Equip> findByZoneId(String zoneId);
+    List<Equip> findByZoneZoneId(String zoneId);
 }

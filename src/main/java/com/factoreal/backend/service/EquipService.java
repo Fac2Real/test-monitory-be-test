@@ -36,7 +36,7 @@ public class EquipService {
         String equipId = EquipIdGenerator.generateEquipId(req.getEquipName());
 
         // 3. 설비 정보 저장
-        Equip equip = new Equip(equipId, req.getEquipName(), zone.getZoneId(), null);
+        Equip equip = new Equip(equipId, req.getEquipName(), zone);
         equipRepo.save(equip);
 
         // 4. DTO로 반환
@@ -48,13 +48,13 @@ public class EquipService {
     public List<EquipDto> getAllEquips() {
         return equipRepo.findAll().stream()
         .map(equip -> {
-            Zone zone = zoneRepo.findById(equip.getZoneId())
+            Zone zone = zoneRepo.findById(equip.getZone().getZoneId())
                 .orElse(new Zone("", "미등록 공간"));
             return new EquipDto(
                 equip.getEquipId(),
                 equip.getEquipName(), 
                 zone.getZoneName(),
-                equip.getZoneId()
+                equip.getZone().getZoneId()
             );
         })
         .collect(Collectors.toList());
