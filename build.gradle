@@ -45,6 +45,16 @@ dependencies {
 
 	// swagger doc
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
+
+	// flyway db
+	implementation 'org.flywaydb:flyway-core'
+	implementation 'org.flywaydb:flyway-mysql'
+
+	// AWS SDK for IoT Data Plane
+	implementation platform('software.amazon.awssdk:bom:2.25.19')
+	implementation 'software.amazon.awssdk:secretsmanager'
+	implementation 'software.amazon.awssdk:regions'
+	implementation 'software.amazon.awssdk:iotdataplane'
 }
 
 tasks.named('test') {

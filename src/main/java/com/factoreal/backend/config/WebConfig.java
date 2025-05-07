@@ -1,4 +1,4 @@
-package com.factoreal.backend.Config;
+package com.factoreal.backend.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -1,16 +1,16 @@
-package com.factoreal.backend.Config;
+package com.factoreal.backend.config;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.factoreal.backend.Dto.SensorDto;
-import com.factoreal.backend.Service.SensorService;
-import com.factoreal.backend.Util.SslUtil;
+import com.factoreal.backend.dto.SensorDto;
+import com.factoreal.backend.service.SensorService;
+import com.factoreal.backend.util.SslUtil;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.eclipse.paho.client.mqttv3.*;
+import org.eclipse.paho.client.mqttv3.MqttClient;
+import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.stereotype.Component;
 
 import javax.net.ssl.SSLSocketFactory;
 import java.nio.charset.StandardCharsets;
@@ -20,12 +20,12 @@ import java.nio.charset.StandardCharsets;
  * - 사물(센서)의 shadow update 메시지를 구독
  */
 @Slf4j
-@Component
+//@Component // 빈에 등록되지 않도록 변경
 @RequiredArgsConstructor
 public class AwsMqttListener {
 
     private final SensorService sensorService;
-
+    private final SslUtil sslUtil;
     @PostConstruct
     public void connect() throws Exception {
 
@@ -45,11 +45,18 @@ public class AwsMqttListener {
 
 
         // 🔐 SSL 인증서 경로 설정
-        SSLSocketFactory sslFactory = SslUtil.getSocketFactory(
-                "src/main/resources/certs/root.pem",
-                "src/main/resources/certs/54e5d2549e672108375364398317635c85a2a4082c90ff9378d02a118bd41800-certificate.pem.crt",
-                "src/main/resources/certs/54e5d2549e672108375364398317635c85a2a4082c90ff9378d02a118bd41800-private.pem.key"
-        );
+        SSLSocketFactory sslFactory;
+        try {
+            // AWS Secret Manager에 정의된 secret 식별자 사용
+            sslFactory = sslUtil.getSocketFactoryFromSecrets("Secret Manger 식별자");
+        }catch (Exception e){
+            // AWS Secret Manager에 Pem이 등록되지 않았다면 그대로 로컬의 pem키 사용.
+            sslFactory = sslUtil.getSocketFactoryFromFiles(
+                    "src/main/resources/certs/root.pem",
+                    "src/main/resources/certs/54e5d2549e672108375364398317635c85a2a4082c90ff9378d02a118bd41800-certificate.pem.crt",
+                    "src/main/resources/certs/54e5d2549e672108375364398317635c85a2a4082c90ff9378d02a118bd41800-private.pem.key"
+            );
+        }
         MqttConnectOptions options = new MqttConnectOptions();
         options.setSocketFactory(sslFactory);
 
@@ -78,7 +85,8 @@ public class AwsMqttListener {
 
                 String sensorId = jsonNode.at("/id").asText();
                 String type = jsonNode.at("/type").asText();
-                SensorDto dto = new SensorDto(sensorId, type);
+//                SensorDto dto = new SensorDto(sensorId, type);
+                SensorDto dto = new SensorDto();
                 sensorService.saveSensor(dto); // 중복이면 예외 발생
                 log.info("✅ 센서 저장 완료: {}", sensorId);
             } catch (DataIntegrityViolationException e) {
