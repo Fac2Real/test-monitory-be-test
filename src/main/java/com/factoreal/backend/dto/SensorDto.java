@@ -12,4 +12,5 @@ import lombok.NoArgsConstructor;
 public class SensorDto {
     private String sensorId; // 센서ID
     private String sensorType; // 센서종류
+    private String location; // zoneId 저장
 }
