@@ -37,7 +37,6 @@ public class MqttService {
             try{
                 ObjectMapper mapper = new ObjectMapper();
                 JsonNode jsonNode = mapper.readTree(payload);
-                System.out.println(jsonNode.toString());
                 // mqtt에서 전달되는 뎁스를 따라가야함
                 JsonNode reported  = jsonNode.at("/current/state/reported");
                 log.info("📥 MQTT 수신 (topic: {}): {}", t, jsonNode);
