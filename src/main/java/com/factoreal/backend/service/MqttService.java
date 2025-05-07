@@ -43,8 +43,15 @@ public class MqttService {
                 String sensorId = reported.at("/sensorId").asText();
                 String type = reported.at("/type").asText();
                 String zoneId = reported.at("/zoneId").asText();
-                String equipId = reported.at("/equipId").asText();
-                SensorDto dto = new SensorDto(sensorId, type , zoneId, equipId);
+                /* ---------- equipId / equipName 처리 ---------- */
+                String equipIdVal = reported.path("equipId").asText(null);   // 키가 없으면 null
+                String equipId    = (equipIdVal == null || equipIdVal.isBlank()) ? null : equipIdVal;
+
+                // 없으면 기본 이름, 있으면 DB에서 이름 조회 (선택)
+                String equipFinalId  = (equipId == null)
+                        ? "equip_000" : equipId;
+
+                SensorDto dto = new SensorDto(sensorId, type , zoneId, equipFinalId);
                 sensorService.saveSensor(dto); // 중복이면 예외 발생
                 log.info("✅ 센서 저장 완료: {}", sensorId);
             } catch (DataIntegrityViolationException e) {
