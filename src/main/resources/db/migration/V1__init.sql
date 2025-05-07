@@ -37,8 +37,8 @@ CREATE TABLE wearable_hist (
     id BIGINT NOT NULL,
     wearable_id VARCHAR(100) NOT NULL,
     worker_id VARCHAR(100) NOT NULL,
-    start_date TIMESTAMP,
-    end_date TIMESTAMP,
+    start_date TIMESTAMP NULL DEFAULT NULL,
+    end_date TIMESTAMP NULL DEFAULT NULL,
     use_flag INT COMMENT '1: 사용중\n0: 미사용중',
     zone_id VARCHAR(100) NOT NULL,
     PRIMARY KEY (id)
@@ -48,8 +48,8 @@ CREATE TABLE zone_hist (
     id BIGINT NOT NULL,
     zone_id VARCHAR(100) NOT NULL,
     worker_id VARCHAR(100) NOT NULL,
-    start_time TIMESTAMP,
-    end_time TIMESTAMP,
+    start_time TIMESTAMP NULL DEFAULT NULL,
+    end_time TIMESTAMP NULL DEFAULT NULL,
     exist_flag INT COMMENT '1 : 있음\n0 : 떠남',
     PRIMARY KEY (id)
 );
@@ -66,7 +66,7 @@ CREATE TABLE sensor_info (
     sensor_type VARCHAR(255),
     val_unit VARCHAR(10),
     sensor_thres INT,
-    created_at TIMESTAMP,
+    created_at TIMESTAMP NULL DEFAULT NULL,
     zone_id VARCHAR(100) NOT NULL,
     equip_id VARCHAR(100) NOT NULL,
     iszone INT COMMENT '1: 공간에 대한 센서\n0 : 설비에 대한 센서',
@@ -79,7 +79,7 @@ CREATE TABLE abn_log (
     target_id VARCHAR(100) COMMENT '센서 ID, 작업자 ID, 설비 ID 중 하나',
     abnormal_type VARCHAR(100) COMMENT '이상 유형 (예: 심박수 이상, 온도 초과, 진동 이상 등)',
     abn_val DOUBLE,
-    detected_at TIMESTAMP COMMENT 'WorkerStatus.detected_at\nSensor.timestamp\nEquipAnom.base_date (? predict_date)',
+    detected_at TIMESTAMP NULL DEFAULT NULL COMMENT 'WorkerStatus.detected_at\nSensor.timestamp\nEquipAnom.base_date (? predict_date)',
     zone_id VARCHAR(100) NOT NULL,
     PRIMARY KEY (id)
 );
@@ -88,7 +88,7 @@ CREATE TABLE notify_log (
     abnormal_id BIGINT NOT NULL,
     recipient_id VARCHAR(100) NOT NULL,
     notify_type VARCHAR(50) COMMENT 'Email, SMS, Push 등',
-    notified_at TIMESTAMP,
+    notified_at TIMESTAMP NULL DEFAULT NULL,
     PRIMARY KEY (abnormal_id),
 
     -- Abnormal Log 참조 (PK이자 FK)
@@ -106,7 +106,7 @@ CREATE TABLE control_log (
     control_type VARCHAR(50) COMMENT '습도 -> 제습기, 온도 -> 에어컨, 미세먼지 -> 공기청정기 등등',
     control_val INT COMMENT '(예: "22도" -> 22, "습도 50%" -> 50)',
     control_stat INT COMMENT '1 : 성공\n0 : 실패',
-    executed_at TIMESTAMP,
+    executed_at TIMESTAMP NULL DEFAULT NULL,
     PRIMARY KEY (abnormal_id),
 
     -- 이상 로그 ID 외래키
