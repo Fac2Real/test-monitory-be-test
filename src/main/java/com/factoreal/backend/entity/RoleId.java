@@ -1,4 +1,4 @@
-package com.factoreal.backend.Entity;
+package com.factoreal.backend.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;

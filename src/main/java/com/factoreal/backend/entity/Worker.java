@@ -1,9 +1,6 @@
-package com.factoreal.backend.Entity;
+package com.factoreal.backend.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
@@ -40,6 +37,6 @@ public class Worker {
             @JoinColumn(name = "role_id", referencedColumnName = "role_id", insertable = false, updatable = false),
             @JoinColumn(name = "zone_id", referencedColumnName = "zone_id", insertable = false, updatable = false)
     })
-    private RoleInfo roleInfo;
+    private Role roleInfo;
     
 }
