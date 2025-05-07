@@ -22,7 +22,9 @@ CREATE TABLE worker_info (
     phone_number VARCHAR(50),
     email VARCHAR(100),
     role_id VARCHAR(50) NOT NULL,
-    PRIMARY KEY (worker_id)
+    zone_id VARCHAR(100) NOT NULL,
+    PRIMARY KEY (worker_id),
+    CONSTRAINT FK_role_info_TO_worker_info FOREIGN KEY (role_id, zone_id) REFERENCES role_info (role_id, zone_id)
 );
 
 CREATE TABLE wearable_info (
@@ -83,12 +85,19 @@ CREATE TABLE abn_log (
 );
 
 CREATE TABLE notify_log (
-    abnomal_id BIGINT NOT NULL,
+    abnormal_id BIGINT NOT NULL,
     recipient_id VARCHAR(100) NOT NULL,
     notify_type VARCHAR(50) COMMENT 'Email, SMS, Push 등',
     notified_at TIMESTAMP,
-    PRIMARY KEY (abnomal_id),
-    CONSTRAINT FK_abn_log_TO_notify_log_1 FOREIGN KEY (abnomal_id) REFERENCES abn_log (id)
+    PRIMARY KEY (abnormal_id),
+
+    -- Abnormal Log 참조 (PK이자 FK)
+    CONSTRAINT FK_notify_log_to_abn_log
+        FOREIGN KEY (abnormal_id) REFERENCES abn_log (id),
+
+    -- Wearable Info 참조
+    CONSTRAINT FK_notify_log_to_wearable_info
+        FOREIGN KEY (recipient_id) REFERENCES wearable_info (wearable_id)
 );
 
 CREATE TABLE control_log (
@@ -99,5 +108,12 @@ CREATE TABLE control_log (
     control_stat INT COMMENT '1 : 성공\n0 : 실패',
     executed_at TIMESTAMP,
     PRIMARY KEY (abnormal_id),
-    CONSTRAINT FK_abn_log_TO_control_log_1 FOREIGN KEY (abnormal_id) REFERENCES abn_log (id)
+
+    -- 이상 로그 ID 외래키
+    CONSTRAINT FK_control_log_to_abn_log
+        FOREIGN KEY (abnormal_id) REFERENCES abn_log (id),
+
+    -- 공간 ID 외래키
+    CONSTRAINT FK_control_log_to_zone_info
+        FOREIGN KEY (zone_id) REFERENCES zone_info (zone_id)
 );

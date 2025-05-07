@@ -1,13 +1,10 @@
-package com.factoreal.backend.entity;
+package com.factoreal.backend.Entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Table(name = "zone_info")
@@ -15,13 +12,15 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 // 공간정보 매핑 Table
 public class Zone {
+
     @Id
-    @Column(name = "zone_id", nullable = false, unique = true)
+    @Column(name = "zone_id", length = 100, nullable = false, unique = true)
     private String zoneId; // 공간ID
 
-    @Column(name = "zone_name", nullable = false)
+    @Column(name = "zone_name", length = 255 , nullable = false)
     private String zoneName; // 공간명
     
 }
