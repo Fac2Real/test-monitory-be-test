@@ -34,6 +34,9 @@ public class ZoneDangerConsumer {
                 if (dangerLevel > 0) {
                     log.info("⚠️ 위험도 {} 센서 타입 : {} 감지됨. Zone: {}", dangerLevel, dto.getSensorType(), dto.getZoneId());
                     webSocketSender.sendDangerLevel(dto.getZoneId(), dto.getSensorType(), dangerLevel);
+                } else {
+                    log.info("⚠️ 정상 공간");
+                    webSocketSender.sendDangerLevel(dto.getZoneId(), dto.getSensorType(), 0);
                 }
             }
 
