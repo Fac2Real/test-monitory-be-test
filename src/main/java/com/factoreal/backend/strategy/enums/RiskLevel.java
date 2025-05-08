@@ -23,8 +23,11 @@ public enum RiskLevel {
                 .sorted(Comparator.comparingInt(RiskLevel::getPriority))
                 .collect(Collectors.toList());
     }
-
-    public static RiskLevel fromString(String levelStr){
-        return RiskLevel.valueOf(levelStr.toUpperCase());
+    public static RiskLevel fromPriority(int priority) {
+        return Arrays.stream(values())
+                .filter(riskLevel -> riskLevel.priority == priority)
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Unknown priority: " + priority));
     }
+
 }

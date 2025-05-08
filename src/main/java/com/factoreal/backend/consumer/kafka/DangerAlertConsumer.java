@@ -1,11 +1,12 @@
 package com.factoreal.backend.consumer.kafka;
 
-import com.factoreal.backend.strategy.enums.AlarmEvent;
 import com.factoreal.backend.dto.SensorDataDto;
-import com.factoreal.backend.strategy.enums.SensorRule;
-import com.factoreal.backend.strategy.enums.RiskLevel;
 import com.factoreal.backend.strategy.NotificationStrategy;
 import com.factoreal.backend.strategy.NotificationStrategyFactory;
+import com.factoreal.backend.strategy.RiskMessageProvider;
+import com.factoreal.backend.strategy.enums.AlarmEvent;
+import com.factoreal.backend.strategy.enums.RiskLevel;
+import com.factoreal.backend.strategy.enums.SensorType;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -13,9 +14,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Stream;
 
 @Slf4j
 @Component
@@ -24,19 +27,22 @@ public class DangerAlertConsumer {
 
     private final NotificationStrategyFactory factory;
     private final ObjectMapper objectMapper; // Inject ObjectMapper
+    private final RiskMessageProvider messageProvider;
+
     // 작업장 환경 토픽 구독
-    @KafkaListener(topics = {"EQUIPMENT", "ENVIRONMENT"}, groupId = "${kafka.group.id:danger-alert-group}")
+    @KafkaListener(
+            topics = {"EQUIPMENT", "ENVIRONMENT"},
+            groupId = "${spring.kafka.consumer.group-id:monitory-consumer-group}"
+    )
     public void listenForDangerAlerts(String message) {
-//        log.info("Received Kafka message: {}", message);
-        List<AlarmEvent> alarmEvents;
+        log.info("Received Kafka message: {}", message);
+        AlarmEvent alarmEvent;
         try {
+            // Kafka에서 받아온 객체
             SensorDataDto sensorData = objectMapper.readValue(message, SensorDataDto.class);
 
-            alarmEvents = Arrays.stream(SensorRule.values())
-                    .map(rule -> rule.evaluate(sensorData))
-                    .filter(Optional::isPresent)
-                    .map(Optional::get)
-                            .toList();
+            alarmEvent = generateAlarmDto(sensorData);
+
         } catch (JsonProcessingException e) {
             log.error("Failed to parse Kafka message as AlarmEvent DTO: {}", message, e);
             // TODO: 파싱 오류 처리 (예: 로그 기록 후 무시, Dead-Letter Queue로 전송 등)
@@ -48,15 +54,45 @@ public class DangerAlertConsumer {
 
         try {
             // 2. 생성된 AlarmEvent DTO 객체를 사용하여 알람 처리
-            for(AlarmEvent alarmEvent : alarmEvents) {
-                log.info("alarmEvent: {}",alarmEvent.toString());
-                processAlarmEvent(alarmEvent);
-            }
-//            processAlarmEvent(alarmEventDto);
+
+            log.info("alarmEvent: {}",alarmEvent.toString());
+            processAlarmEvent(alarmEvent);
+
         } catch (Exception e) {
             log.error("An error occurred while processing AlarmEvent: {}", message, e);
             // TODO: 기타 처리 오류 처리
         }
+    }
+
+    private AlarmEvent generateAlarmDto(SensorDataDto data) throws Exception{
+        Stream<SensorType> sensorTypes = Stream.of(SensorType.values());
+
+        SensorType sensorType = sensorTypes.filter(
+                s -> s.name().equals(data.getSensorType())
+        ).findFirst().orElse(null);
+
+        if (sensorType == null) {
+            throw new Exception("SensorType not found");
+        }
+
+        int dangerLevel = ZoneDangerConsumer.getDangerLevel(sensorType.name(),data.getVal());
+        RiskLevel riskLevel = RiskLevel.fromPriority(dangerLevel);
+        String source = data.getZoneId().equals(data.getEquipId()) ? "공간 센서":"설비 센서";
+
+        // 위험 레벨 별 알람 객체 생성.
+        String messageBody = messageProvider.getMessage(sensorType,riskLevel);
+
+
+        // 알람 이벤트 객체 반환.
+        return AlarmEvent.builder()
+                .eventId(UUID.randomUUID())
+                .sensorType(String.valueOf(sensorType))
+                .sensorValue(data.getVal())
+                .messageBody(messageProvider.getMessage(sensorType,riskLevel))
+                .source(source)
+                .riskLevel(riskLevel)
+                .timestamp(Timestamp.valueOf(LocalDateTime.now()))
+                .build();
     }
 
     private void processAlarmEvent(AlarmEvent alarmEventDto) {
