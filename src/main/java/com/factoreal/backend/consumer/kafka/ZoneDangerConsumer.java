@@ -1,4 +1,4 @@
-package com.factoreal.backend.consumer;
+package com.factoreal.backend.consumer.kafka;
 
 import com.factoreal.backend.dto.SensorKafkaDto;
 import com.factoreal.backend.sender.WebSocketSender;
@@ -18,7 +18,7 @@ import java.util.Map;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class KafkaSensorConsumer {
+public class ZoneDangerConsumer {
 
     private final ObjectMapper objectMapper = new ObjectMapper(); // 데이터 파싱
     private final WebSocketSender webSocketSender; // 웹소켓
@@ -49,8 +49,8 @@ public class KafkaSensorConsumer {
                 int dangerLevel = getDangerLevel(dto.getSensorType(), dto.getVal());
 
                 if (dangerLevel > 0) {
-                    log.info("⚠️ 위험도 {} 감지됨. Zone: {}", dangerLevel, dto.getZoneId());
-                    webSocketSender.sendDangerLevel(dto.getZoneId(), dangerLevel);
+                    log.info("⚠️ 위험도 {} 센서 타입 : {} 감지됨. Zone: {}", dangerLevel, dto.getSensorType(), dto.getZoneId());
+                    webSocketSender.sendDangerLevel(dto.getZoneId(), dto.getSensorType(), dangerLevel);
                 }
             }
 
@@ -59,7 +59,7 @@ public class KafkaSensorConsumer {
         }
     }
 
-    private int getDangerLevel(String type, double value) {
+    public static int getDangerLevel(String type, double value) {
         return switch (type) {
             case "temp" -> value > 50 ? 2 : (value > 30 ? 1 : 0);
             case "humid" -> value > 70 ? 2 : (value > 50 ? 1 : 0);
