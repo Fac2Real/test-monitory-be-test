@@ -41,7 +41,7 @@ public class ZoneService {
         //equipRepo.
         EquipDto equipDto = EquipDto
                 .builder()
-                .equipName("Empty")
+                .equipName("empty")
                 .zoneId(zoneId)
                 .zoneName(zoneName)
                 .build();

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.factoreal.backend.strategy.enums.SensorType;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,7 +49,7 @@ public class SensorService {
         // 3. 센서 정보 저장
         Sensor sens = new Sensor();
         sens.setSensorId(dto.getSensorId());
-        sens.setSensorType(dto.getSensorType());
+        sens.setSensorType(SensorType.valueOf(dto.getSensorType()));
         sens.setZone(zone);
         sens.setEquip(equip.get());
         return repo.save(sens);
@@ -57,7 +58,7 @@ public class SensorService {
     // 센서 전체 리스트 조회
     public List<SensorDto> getAllSensors() {
         return repo.findAll().stream()
-        .map(s -> new SensorDto(s.getSensorId(), s.getSensorType(), s.getZone().getZoneId(), s.getEquip().getEquipId()))
+        .map(s -> new SensorDto(s.getSensorId(), s.getSensorType().toString(), s.getZone().getZoneId(), s.getEquip().getEquipId()))
         .collect(Collectors.toList());
     }
 

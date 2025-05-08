@@ -5,28 +5,31 @@
 
 -- 1. zone_info
 INSERT INTO zone_info (zone_id, zone_name) VALUES
-('zone_001', '생산 라인 A'),
-('zone_002', '포장 구역 B'),
-('zone_003', '품질 검사 C');
+('20250507165750-827', '생산 라인 A'),
+('20250507171046-862', '포장 구역 B'),
+('20250507191546-243', '품질 검사 C');
 
--- 2. role_info
-INSERT INTO role_info (role_id, zone_id) VALUES
-('manager', 'zone_001'),
-('operator', 'zone_002'),
-('inspector', 'zone_003');
 
--- 3. equip_info
+-- 2. equip_info
 -- '작업장 센서' == NULL
 INSERT INTO equip_info (equip_id, equip_name, zone_id) VALUES
-('equip_001', '로봇 암 1호기', 'zone_001'),
-('equip_000', '작업장 센서', 'zone_001'),
-('equip_003', '자동 포장기 2호기', 'zone_002'),
-('equip_002', '작업장 센서', 'zone_002'),
-('equip_004', 'X-ray 검사기', 'zone_003'),
-('equip_005', '작업장 센서', 'zone_003');
+('20250507171316-389', '로봇 암 1호기', '20250507165750-827'),
+('20250507165750-827', 'empty', '20250507165750-827'),
+('20250507171316-340', '자동 포장기 2호기', '20250507171046-862'),
+('20250507171046-862', 'empty', '20250507171046-862'),
+('20250507171316-341', 'X-ray 검사기', '20250507191546-243'),
+('20250507191546-243', 'empty', '20250507191546-243');
 
--- 4. worker_info
-INSERT INTO worker_info (worker_id, name, phone_number, email, role_id, zone_id) VALUES
-('worker_001', '홍길동', '010-1234-5678', 'hong@example.com', 'manager', 'zone_001'),
-('worker_002', '김철수', '010-2345-6789', 'kim@example.com', 'operator', 'zone_002'),
-('worker_003', '이영희', '010-3456-7890', 'lee@example.com', 'inspector', 'zone_003');
+
+-- 3. sensor_info
+-- sensor_info data
+INSERT INTO my_database.sensor_info (sensor_id, sensor_type, val_unit, sensor_thres, created_at, zone_id, equip_id, iszone) VALUES ('UA10H-HUM-24060890', 'humid', null, null, null, '20250507171046-862', '20250507171316-340', 0);
+INSERT INTO my_database.sensor_info (sensor_id, sensor_type, val_unit, sensor_thres, created_at, zone_id, equip_id, iszone) VALUES ('UA10H-HUM-24060891', 'humid', null, null, null, '20250507171046-862', '20250507171046-862', 1);
+INSERT INTO my_database.sensor_info (sensor_id, sensor_type, val_unit, sensor_thres, created_at, zone_id, equip_id, iszone) VALUES ('UA10H-HUM-24060892', 'humid', null, null, null, '20250507165750-827', '20250507171046-827', 1);
+INSERT INTO my_database.sensor_info (sensor_id, sensor_type, val_unit, sensor_thres, created_at, zone_id, equip_id, iszone) VALUES ('UA10T-TEM-24060890', 'temp', null, null, null, '20250507165750-827', '20250507171316-389', 0);
+INSERT INTO my_database.sensor_info (sensor_id, sensor_type, val_unit, sensor_thres, created_at, zone_id, equip_id, iszone) VALUES ('UA10T-TEM-24060891', 'temp', null, null, null, '20250507165750-827', '20250507165750-827', 1);
+INSERT INTO my_database.sensor_info (sensor_id, sensor_type, val_unit, sensor_thres, created_at, zone_id, equip_id, iszone) VALUES ('UA10V-VIB-24060890', 'vibration', null, null, null, '20250507165750-827', '20250507171316-389', 0);
+INSERT INTO my_database.sensor_info (sensor_id, sensor_type, val_unit, sensor_thres, created_at, zone_id, equip_id, iszone) VALUES ('UA10V-VIB-24060891', 'vibration', null, null, null, '20250507165750-827', '20250507171316-389', 0);
+INSERT INTO my_database.sensor_info (sensor_id, sensor_type, val_unit, sensor_thres, created_at, zone_id, equip_id, iszone) VALUES ('UA10V-VIB-24060892', 'vibration', null, null, null, '20250507165750-827', '20250507171316-389', 0);
+INSERT INTO my_database.sensor_info (sensor_id, sensor_type, val_unit, sensor_thres, created_at, zone_id, equip_id, iszone) VALUES ('UA10V-VIB-24060893', 'vibration', null, null, null, '20250507165750-827', '20250507171316-389', 0);
+

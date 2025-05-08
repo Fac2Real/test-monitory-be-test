@@ -1,33 +1,27 @@
-package com.factoreal.backend.service;
+package com.factoreal.backend.consumer.mqtt;
 
 import com.factoreal.backend.dto.EquipDto;
 import com.factoreal.backend.dto.SensorDto;
-import com.factoreal.backend.entity.Equip;
-import com.factoreal.backend.entity.Zone;
-import com.factoreal.backend.repository.EquipRepository;
-import com.factoreal.backend.repository.ZoneRepository;
+import com.factoreal.backend.service.SensorService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
 
 @Slf4j
-@Service
+@Component
 @RequiredArgsConstructor
 public class MqttService {
     private final MqttClient mqttClient;
     private final SensorService sensorService;
-    private final EquipService equipService;
-    private final ZoneRepository zoneRepo;
-    private final EquipRepository equipRepo;
 
     /**
      * - 디바이스의 shadow 메타데이터 변경사항(등록/수정)을 구독
@@ -58,12 +52,10 @@ public class MqttService {
 
                 SensorDto dto = new SensorDto(sensorId, type , zoneId, equipId);
                 sensorService.saveSensor(dto); // 중복이면 예외 발생
-
                 log.info("✅ 센서 저장 완료: {}", sensorId);
             } catch (DataIntegrityViolationException e) {
                 log.warn("⚠️ 중복 센서 저장 시도 차단됨: {}", e.getMessage());
             } catch (Exception e) {
-                e.printStackTrace();
                 log.error("❌ JSON 파싱 또는 저장 중 오류: {}", e.getMessage());
             }
 
