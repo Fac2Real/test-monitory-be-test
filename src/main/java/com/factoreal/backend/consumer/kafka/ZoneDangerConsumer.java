@@ -1,4 +1,4 @@
-package com.factoreal.backend.consumer;
+package com.factoreal.backend.consumer.kafka;
 
 import com.factoreal.backend.dto.SensorKafkaDto;
 import com.factoreal.backend.sender.WebSocketSender;
@@ -11,13 +11,12 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class KafkaSensorConsumer {
+public class ZoneDangerConsumer {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final WebSocketSender webSocketSender;
 
-
-    @KafkaListener(topics = {"EQUIPMENT", "ENVIRONMENT"}, groupId = "monitory-consumer-group")
+    @KafkaListener(topics = { "EQUIPMENT", "ENVIRONMENT" }, groupId = "monitory-consumer-group")
     public void consume(String message) {
 
         log.info("✅ 수신한 Kafka 메시지: " + message);
@@ -32,8 +31,8 @@ public class KafkaSensorConsumer {
                 int dangerLevel = getDangerLevel(dto.getSensorType(), dto.getVal());
 
                 if (dangerLevel > 0) {
-                    log.info("⚠️ 위험도 {} 감지됨. Zone: {}", dangerLevel, dto.getZoneId());
-                    webSocketSender.sendDangerLevel(dto.getZoneId(), dangerLevel);
+                    log.info("⚠️ 위험도 {} 센서 타입 : {} 감지됨. Zone: {}", dangerLevel, dto.getSensorType(), dto.getZoneId());
+                    webSocketSender.sendDangerLevel(dto.getZoneId(), dto.getSensorType(), dangerLevel);
                 }
             }
 
@@ -98,7 +97,8 @@ public class KafkaSensorConsumer {
                     yield 0;
             }
             
+            // 그 외 센서 타입은 안전
             default -> 0;
-        };
+        }; // switch 끝
     }
 }
