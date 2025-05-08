@@ -1,18 +1,19 @@
 package com.factoreal.backend.consumer.kafka;
 
-import com.factoreal.backend.dto.SensorDataDto;
+import com.factoreal.backend.dto.SensorKafkaDto;
+import com.factoreal.backend.sender.WebSocketSender;
 import com.factoreal.backend.strategy.NotificationStrategy;
 import com.factoreal.backend.strategy.NotificationStrategyFactory;
 import com.factoreal.backend.strategy.RiskMessageProvider;
 import com.factoreal.backend.strategy.enums.AlarmEvent;
 import com.factoreal.backend.strategy.enums.RiskLevel;
 import com.factoreal.backend.strategy.enums.SensorType;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.stereotype.Component;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -20,38 +21,57 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
 
+@Service
 @Slf4j
-@Component
 @RequiredArgsConstructor
-public class DangerAlertConsumer {
+public class KafkaConsumer {
 
+    private final ObjectMapper objectMapper;
+    private final WebSocketSender webSocketSender;
+
+    // 알람 푸시 용
     private final NotificationStrategyFactory factory;
-    private final ObjectMapper objectMapper; // Inject ObjectMapper
     private final RiskMessageProvider messageProvider;
 
-    // 작업장 환경 토픽 구독
-    @KafkaListener(
-            topics = {"EQUIPMENT", "ENVIRONMENT"},
-            groupId = "${spring.kafka.consumer.group-id:monitory-consumer-group}"
-    )
-    public void listenForDangerAlerts(String message) {
-        log.info("Received Kafka message: {}", message);
-        AlarmEvent alarmEvent;
+    @KafkaListener(topics = {"EQUIPMENT", "ENVIRONMENT"}, groupId = "monitory-consumer-group")
+    public void consume(String message) {
+
+        log.info("✅ 수신한 Kafka 메시지: " + message);
+        // #################################
+        // 대시보드용 히트맵 로직
+        // #################################
         try {
-            // Kafka에서 받아온 객체
-            SensorDataDto sensorData = objectMapper.readValue(message, SensorDataDto.class);
+            SensorKafkaDto dto = objectMapper.readValue(message, SensorKafkaDto.class);
+            startAlarm(dto);
+            // equipId가 비어있고 zoneId는 존재할 때만 처리
+            if ((dto.getEquipId() == null || dto.getEquipId().isEmpty()) && dto.getZoneId() != null) {
 
+                log.info("▶︎ 위험도 감지 start");
+                int dangerLevel = getDangerLevel(dto.getSensorType(), dto.getVal());
+
+                if (dangerLevel > 0) {
+                    log.info("⚠️ 위험도 {} 센서 타입 : {} 감지됨. Zone: {}", dangerLevel, dto.getSensorType(), dto.getZoneId());
+                    webSocketSender.sendDangerLevel(dto.getZoneId(), dto.getSensorType(), dangerLevel);
+                }
+            }
+
+
+
+        } catch (Exception e) {
+            log.error("❌ Kafka 메시지 파싱 실패: {}", message, e);
+        }
+
+
+    }
+    @Async
+    public void startAlarm(SensorKafkaDto sensorData){
+        AlarmEvent alarmEvent;
+        try{
             alarmEvent = generateAlarmDto(sensorData);
-
-        } catch (JsonProcessingException e) {
-            log.error("Failed to parse Kafka message as AlarmEvent DTO: {}", message, e);
-            // TODO: 파싱 오류 처리 (예: 로그 기록 후 무시, Dead-Letter Queue로 전송 등)
-            return;
         }catch (Exception e){
             log.error("Error converting Kafka message: {}", e);
             return;
         }
-
         try {
             // 2. 생성된 AlarmEvent DTO 객체를 사용하여 알람 처리
 
@@ -59,12 +79,20 @@ public class DangerAlertConsumer {
             processAlarmEvent(alarmEvent);
 
         } catch (Exception e) {
-            log.error("An error occurred while processing AlarmEvent: {}", message, e);
+            log.error("Error converting Kafka message: {}", e);
             // TODO: 기타 처리 오류 처리
         }
     }
+    public static int getDangerLevel(String type, double value) {
+        return switch (type) {
+            case "temp" -> value > 50 ? 2 : (value > 30 ? 1 : 0);
+            case "humid" -> value > 70 ? 2 : (value > 50 ? 1 : 0);
+            case "vibration" -> value > 10 ? 2 : (value > 5 ? 1 : 0);
+            default -> 0;
+        };
+    }
 
-    private AlarmEvent generateAlarmDto(SensorDataDto data) throws Exception{
+    private AlarmEvent generateAlarmDto(SensorKafkaDto data) throws Exception{
         Stream<SensorType> sensorTypes = Stream.of(SensorType.values());
 
         SensorType sensorType = sensorTypes.filter(
@@ -75,7 +103,7 @@ public class DangerAlertConsumer {
             throw new Exception("SensorType not found");
         }
 
-        int dangerLevel = ZoneDangerConsumer.getDangerLevel(sensorType.name(),data.getVal());
+        int dangerLevel = KafkaConsumer.getDangerLevel(sensorType.name(),data.getVal());
         RiskLevel riskLevel = RiskLevel.fromPriority(dangerLevel);
         String source = data.getZoneId().equals(data.getEquipId()) ? "공간 센서":"설비 센서";
 

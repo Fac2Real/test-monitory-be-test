@@ -14,7 +14,7 @@ public record AlarmEvent(
         // 1. 필수 공통 정보
         UUID eventId,           // 알람 이벤트 고유 ID (추적용) -> BE에서 할당
         String sensorType,       // 알람 종류 (예: "HIGH_HEART_RATE", "LOW_BATTERY", "SERVER_DOWN") - 분류 및 라우팅에 사용
-        float sensorValue, // 이상치 값
+        double sensorValue, // 이상치 값
         RiskLevel riskLevel, // 알람 심각도 (예: CRITICAL, WARNING, INFO) - 채널 선택, 표현 방식 결정에 사용
 
         Timestamp timestamp,      // 알람 발생 시각 -> BE에서 할당
