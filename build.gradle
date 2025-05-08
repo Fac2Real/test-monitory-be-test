@@ -61,6 +61,9 @@ dependencies {
 
 	// WebSocket
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
+
+	// ELK
+	implementation 'org.elasticsearch.client:elasticsearch-rest-high-level-client:7.17.21'
 }
 
 tasks.named('test') {
