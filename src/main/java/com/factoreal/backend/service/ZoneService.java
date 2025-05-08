@@ -3,6 +3,8 @@ package com.factoreal.backend.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.factoreal.backend.dto.EquipDto;
+import com.factoreal.backend.entity.Equip;
 import com.factoreal.backend.repository.EquipRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -22,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 public class ZoneService {
     private final ZoneRepository repo;
     private final EquipRepository equipRepo;
+    private final EquipService equipService;
     // 1. 공간명 중복 체크 -> 2. 고유한 공간ID 할당 -> 3. save 한 뒤 DTO로 반환
     @Transactional
     public ZoneDto createZone(String zoneName) {
@@ -36,7 +39,13 @@ public class ZoneService {
         Zone zone = repo.save(new Zone(zoneId, zoneName));
         // 4. equip_id 가 없는 (설비 명이 없는 데이터를 위한 빈 equip_객체 생성)
         //equipRepo.
-
+        EquipDto equipDto = EquipDto
+                .builder()
+                .equipName("empty")
+                .zoneId(zoneId)
+                .zoneName(zoneName)
+                .build();
+        equipService.saveEquip(equipDto);
         return new ZoneDto(zone.getZoneId(), zone.getZoneName());
     }
 
