@@ -56,27 +56,6 @@ public class MqttService {
                 String equipIdVal = reported.path("equipId").asText(null);   // 키가 없으면 null
                 String equipId    = (equipIdVal == null || equipIdVal.isBlank()) ? null : equipIdVal;
 
-                String zoneName = zoneRepo.findById(zoneId)          // ① Zone 조회
-                        .map(Zone::getZoneName)   // ② 이름만 추출
-                        .orElseThrow(() ->
-                                new EntityNotFoundException("존재하지 않는 zoneId: " + zoneId));
-                Equip temp;
-                // 없으면 기본 이름, 있으면 DB에서 이름 조회 (선택)
-                if(equipId==null) {
-                    if(equipService.duplicateEquip("Empty", zoneId)) {
-                        EquipDto equipDto = EquipDto
-                                .builder()
-                                .equipName("Empty")
-                                .zoneId(zoneId)
-                                .zoneName(zoneName)
-                                .build();
-                        temp = equipService.saveEquip(equipDto);
-                    }else {
-                        temp = equipService.getEquipByEquipNameAndZoneId("Empty", zoneId);
-                    }
-                    equipId = temp.getEquipId();
-                }
-
                 SensorDto dto = new SensorDto(sensorId, type , zoneId, equipId);
                 sensorService.saveSensor(dto); // 중복이면 예외 발생
 

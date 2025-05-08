@@ -35,7 +35,7 @@ public class EquipService {
                         HttpStatus.NOT_FOUND, "존재하지 않는 공간 ID: " + dto.getZoneId()));
         // 설비 정보 저장
         Equip equips = new Equip();
-        equips.setEquipId(EquipIdGenerator.generateEquipId());
+        equips.setEquipId(zone.getZoneId());
         equips.setEquipName(dto.getEquipName());
         equips.setZone(zone);
         return equipRepo.save(equips);
