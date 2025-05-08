@@ -1,6 +1,7 @@
-package com.factoreal.backend.service;
+package com.factoreal.backend.consumer.mqtt;
 
 import com.factoreal.backend.dto.SensorDto;
+import com.factoreal.backend.service.SensorService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
@@ -9,12 +10,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
 
 @Slf4j
-@Service
+@Component
 @RequiredArgsConstructor
 public class MqttService {
     private final MqttClient mqttClient;

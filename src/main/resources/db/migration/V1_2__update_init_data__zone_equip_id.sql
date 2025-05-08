@@ -30,10 +30,6 @@ UPDATE equip_info SET equip_id = '20250507190000-001' WHERE equip_id = 'equip_00
 UPDATE equip_info SET equip_id = '20250507190000-002' WHERE equip_id = 'equip_004';
 UPDATE equip_info SET equip_id = '20250507190000-003' WHERE equip_id = 'equip_005';
 
-
-UPDATE equip_info SET zone_id = '20250507165750-827' WHERE zone_id = 'zone_001';
-UPDATE equip_info SET zone_id = '20250507171046-862' WHERE zone_id = 'zone_002';
-UPDATE equip_info SET zone_id = '20250507191546-243' WHERE zone_id = 'zone_003';
 -- sensor_info에 equip_id가 연결되어 있을 경우 함께 업데이트 필요
 -- (필요 시 주석 해제)
 -- UPDATE sensor_info SET equip_id = '20250507171316-389' WHERE equip_id = 'equip_001';
