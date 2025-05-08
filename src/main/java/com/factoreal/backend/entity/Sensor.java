@@ -1,6 +1,5 @@
 package com.factoreal.backend.entity;
 
-import com.factoreal.backend.strategy.enums.SensorType;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -13,15 +12,14 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Sensor {
+public class  Sensor {
 
     @Id
     @Column(name = "sensor_id", length = 100, nullable = false, unique = true) // 센서ID
     private String sensorId;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "sensor_type") // 센서종류
-    private SensorType sensorType;
+    @Column(name = "sensor_type", length = 255) // 센서종류
+    private String sensorType;
 
     @Column(name = "val_unit", length = 10)
     private String valUnit;

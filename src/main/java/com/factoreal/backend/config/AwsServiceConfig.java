@@ -7,7 +7,6 @@ import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.iotdataplane.IotDataPlaneClient;
 import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient;
-import software.amazon.awssdk.services.sns.SnsClient;
 
 @Configuration
 public class AwsServiceConfig {
@@ -37,14 +36,6 @@ public class AwsServiceConfig {
     @Bean
     public IotDataPlaneClient iotDataPlaneClient() {
         return IotDataPlaneClient.builder()
-                .region(Region.of(region))
-                .credentialsProvider(this::awsCredentials)
-                .build();
-    }
-
-    @Bean
-    public SnsClient snsClient() {
-        return SnsClient.builder()
                 .region(Region.of(region))
                 .credentialsProvider(this::awsCredentials)
                 .build();
