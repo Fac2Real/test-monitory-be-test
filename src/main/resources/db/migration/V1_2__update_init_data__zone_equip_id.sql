@@ -24,7 +24,9 @@ UPDATE worker_info SET zone_id = '20250507191546-243' WHERE zone_id = 'zone_003'
 
 -- 3. equip_info 테이블의 equip_id 업데이트
 UPDATE equip_info SET equip_id = '20250507171316-389' WHERE equip_id = 'equip_001';
+UPDATE equip_info SET equip_name = 'Empty' WHERE equip_id = '20250507171316-389';
 UPDATE equip_info SET equip_id = '20250507165924-184' WHERE equip_id = 'equip_000';
+DELETE FROM equip_info WHERE equip_id = '20250507165924-184';
 UPDATE equip_info SET equip_id = '20250507181319-532' WHERE equip_id = 'equip_002';
 UPDATE equip_info SET equip_id = '20250507190000-001' WHERE equip_id = 'equip_003';
 UPDATE equip_info SET equip_id = '20250507190000-002' WHERE equip_id = 'equip_004';
