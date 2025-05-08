@@ -8,9 +8,9 @@ public class EquipIdGenerator {
     private static final Random RANDOM = new Random();
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
 
-    public static String generateEquipId(String equipName) {
+    public static String generateEquipId() {
         String now = LocalDateTime.now().format(FORMATTER);
         int randomSuffix = RANDOM.nextInt(900) + 100; // 100~999
-        return equipName + "-" + now + "-" + randomSuffix;
+        return now + "-" + randomSuffix;
     }
 }

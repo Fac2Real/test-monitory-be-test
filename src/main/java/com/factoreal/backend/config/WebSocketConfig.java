@@ -5,7 +5,7 @@ import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.*;
 
 @Configuration
-@EnableWebSocketMessageBroker
+@EnableWebSocketMessageBroker // STOMP 기반 websocket 메시징 활성화.
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override

@@ -5,12 +5,14 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.factoreal.backend.dto.EquipCreateRequest;
 import com.factoreal.backend.dto.EquipDto;
+import com.factoreal.backend.dto.EquipUpdateDto;
 import com.factoreal.backend.service.EquipService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -30,8 +32,19 @@ public class EquipController {
     @PostMapping
     @Operation(summary = "설비 등록", description = "UI로부터 설비명과 공간명을 입력받아 고유 ID를 생성하여 설비 정보를 등록합니다.")
     public ResponseEntity<EquipDto> createEquip(@Valid @RequestBody EquipCreateRequest req) {
-            EquipDto created = service.createEquip(req);
-            return ResponseEntity.status(HttpStatus.CREATED).body(created);
+        EquipDto created = service.createEquip(req);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    }
+
+    // 설비 정보 수정
+    @PostMapping("/{equipId}")
+    @Operation(summary = "설비 정보 수정", description = "기존 설비의 이름을 수정합니다.")
+    public ResponseEntity<EquipDto> updateEquip(
+            @PathVariable String equipId,
+            @RequestBody EquipUpdateDto dto) {
+
+        EquipDto updated = service.updateEquip(equipId, dto);
+        return ResponseEntity.ok(updated);
     }
 
     // 설비 목록 조회

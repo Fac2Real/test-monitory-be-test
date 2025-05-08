@@ -42,7 +42,6 @@ dependencies {
 	implementation 'org.bouncycastle:bcprov-jdk15on:1.70'
 	implementation 'org.bouncycastle:bcpkix-jdk15on:1.70'
 
-
 	// swagger doc
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
 
@@ -55,9 +54,19 @@ dependencies {
 	implementation 'software.amazon.awssdk:secretsmanager'
 	implementation 'software.amazon.awssdk:regions'
 	implementation 'software.amazon.awssdk:iotdataplane'
+	implementation 'software.amazon.awssdk:sns'
+
+	// AWS 테스트용 LocalStack
+	testImplementation 'org.testcontainers:junit-jupiter'
+	testImplementation 'org.testcontainers:localstack'
+	testImplementation 'software.amazon.awssdk:sns'
+
+	// Websocket
+	implementation("org.springframework.boot:spring-boot-starter-websocket:3.4.5")
 
 	// kafka
 	implementation 'org.springframework.kafka:spring-kafka'
+    testImplementation 'org.springframework.kafka:spring-kafka-test'
 
 	// WebSocket
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
@@ -65,7 +74,7 @@ dependencies {
 	// ELK
 	implementation 'org.elasticsearch.client:elasticsearch-rest-high-level-client:7.17.21'
 }
-
-tasks.named('test') {
-	useJUnitPlatform()
+	tasks.named('test') {
+		useJUnitPlatform()
+	}
 }
