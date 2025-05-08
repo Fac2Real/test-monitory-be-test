@@ -79,16 +79,7 @@ public class ZoneDangerConsumer {
                     yield 0;
             }
 
-            case "pm10" -> { // PM10 위험도 기준 (고용노동부)
-                if (value >= 300)              // ≥ 300㎍/㎥ → 위험 (2)
-                    yield 2;
-                else if (value >= 150)         // ≥ 150㎍/㎥ → 주의 (1)
-                    yield 1;
-                else                            // < 150㎍/㎥ → 안전 (0)
-                    yield 0;
-            }
-
-            case "pm2.5" -> { // PM2.5 위험도 기준 (고용노동부)
+            case "dust" -> { // PM2.5 위험도 기준 (고용노동부)
                 if (value >= 150)              // ≥ 150㎍/㎥ → 위험 (2)
                     yield 2;
                 else if (value >= 75)          // ≥ 75㎍/㎥ → 주의 (1)
