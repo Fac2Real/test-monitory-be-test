@@ -15,6 +15,6 @@ public class SensorKafkaDto {
     private String equipId;
     private String sensorId;
     private String sensorType;
-    private Double val;
-    private String time;
+    private Double val;  // 측정값 단위
+    private String time; // 센서 생성시간
 }

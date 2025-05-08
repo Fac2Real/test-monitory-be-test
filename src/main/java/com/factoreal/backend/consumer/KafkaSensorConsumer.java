@@ -25,8 +25,8 @@ public class KafkaSensorConsumer {
         try {
             SensorKafkaDto dto = objectMapper.readValue(message, SensorKafkaDto.class);
 
-            // equipId가 비어있고 zoneId는 존재할 때만 처리
-            if ((dto.getEquipId() == null || dto.getEquipId().isEmpty()) && dto.getZoneId() != null) {
+            // equipId와 zoneId가 같을 때만 처리 - 공간 센서(not 설비 센서)
+            if (dto.getEquipId() != null && dto.getEquipId().equals(dto.getZoneId()) && dto.getZoneId() != null) {
 
                 log.info("▶︎ 위험도 감지 start");
                 int dangerLevel = getDangerLevel(dto.getSensorType(), dto.getVal());
@@ -42,11 +42,62 @@ public class KafkaSensorConsumer {
         }
     }
 
-    private int getDangerLevel(String type, double value) {
-        return switch (type) {
-            case "temp" -> value > 50 ? 2 : (value > 30 ? 1 : 0);
-            case "humid" -> value > 70 ? 2 : (value > 50 ? 1 : 0);
-            case "vibration" -> value > 10 ? 2 : (value > 5 ? 1 : 0);
+    private int getDangerLevel(String sensorType, double value) { // 위험도 계산 메서드
+        return switch (sensorType) { // 센서 타입에 따른 위험도 계산
+            case "temp" -> { // 온도 위험도 기준 (KOSHA: https://www.kosha.or.kr/)
+                if (value > 40 || value < -35)        // >40℃ 또는 < -35℃ → 위험 (작업 중단 권고)
+                    yield 2;
+                else if (value > 30 || value < 25)   // >30℃ 또는 < 25℃ → 주의 (작업 제한 또는 휴식 권고)
+                    yield 1;
+                else                                 // 25℃ ≤ value ≤ 30℃ → 안전 (권장 18~21℃)
+                    yield 0;
+            }
+            
+            case "humid" -> { // 상대습도 위험도 기준 (OSHA, ACGIH TLV®, NIOSH)
+                if (value >= 80)             // RH ≥ 80% → 위험
+                    yield 2;
+                else if (value >= 60)        // 60% ≤ RH < 80% → 주의
+                    yield 1;
+                else                         // RH < 60% → 안전
+                    yield 0;
+            }
+            
+            case "vibration" -> { // 진동 위험도 기준 (ISO 10816-3)
+                if (value > 7.1)            // >7.1 mm/s → 위험 (2)
+                    yield 2;
+                else if (value > 2.8)       // >2.8 mm/s → 주의 (1)
+                    yield 1;
+                else                        // ≤2.8 mm/s → 안전 (0)
+                    yield 0;
+            }
+
+            case "current" -> { // 전류 위험도 기준 (KEPCO)
+                if (value >= 30)        // ≥30 mA → 위험 (강한 경련, 심실세동 및 사망 위험)
+                    yield 2;
+                else if (value >= 7)    // ≥7 mA → 주의 (고통 한계 전류, 불수전류)
+                    yield 1;
+                else                    // <7 mA → 안전 (감지전류 수준)
+                    yield 0;
+            }
+
+            case "pm10" -> { // PM10 위험도 기준 (고용노동부)
+                if (value >= 300)              // ≥ 300㎍/㎥ → 위험 (2)
+                    yield 2;
+                else if (value >= 150)         // ≥ 150㎍/㎥ → 주의 (1)
+                    yield 1;
+                else                            // < 150㎍/㎥ → 안전 (0)
+                    yield 0;
+            }
+
+            case "pm2.5" -> { // PM2.5 위험도 기준 (고용노동부)
+                if (value >= 150)              // ≥ 150㎍/㎥ → 위험 (2)
+                    yield 2;
+                else if (value >= 75)          // ≥ 75㎍/㎥ → 주의 (1)
+                    yield 1;
+                else                            // < 75㎍/㎥ → 안전 (0)
+                    yield 0;
+            }
+            
             default -> 0;
         };
     }
