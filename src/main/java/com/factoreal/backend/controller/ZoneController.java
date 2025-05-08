@@ -6,11 +6,13 @@ import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.factoreal.backend.dto.ZoneDto;
+import com.factoreal.backend.dto.ZoneUpdateDto;
 import com.factoreal.backend.service.ZoneService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -35,6 +37,15 @@ public class ZoneController {
         ZoneDto created = service.createZone(zoneName);
         // 3. 201 CREATED 응답으로 DTO 반환
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    }
+
+    @PostMapping("/{zoneId}")
+    @Operation(summary = "공간 정보 수정", description = "기존 공간의 이름을 수정합니다.")
+    public ResponseEntity<ZoneDto> updateZone(
+            @PathVariable String zoneId,
+            @RequestBody ZoneUpdateDto dto) {
+        ZoneDto updated = service.updateZone(zoneId, dto);
+        return ResponseEntity.ok(updated);
     }
 
     @GetMapping
