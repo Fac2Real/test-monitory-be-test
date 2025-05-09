@@ -1,5 +1,6 @@
 package com.factoreal.backend.consumer.mqtt;
 
+import com.factoreal.backend.dto.EquipDto;
 import com.factoreal.backend.dto.SensorDto;
 import com.factoreal.backend.service.SensorService;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -49,11 +50,7 @@ public class MqttService {
                 String equipIdVal = reported.path("equipId").asText(null);   // 키가 없으면 null
                 String equipId    = (equipIdVal == null || equipIdVal.isBlank()) ? null : equipIdVal;
 
-                // 없으면 기본 이름, 있으면 DB에서 이름 조회 (선택)
-                String equipFinalId  = (equipId == null)
-                        ? "equip_000" : equipId;
-
-                SensorDto dto = new SensorDto(sensorId, type , zoneId, equipFinalId);
+                SensorDto dto = new SensorDto(sensorId, type , zoneId, equipId);
                 sensorService.saveSensor(dto); // 중복이면 예외 발생
                 log.info("✅ 센서 저장 완료: {}", sensorId);
             } catch (DataIntegrityViolationException e) {

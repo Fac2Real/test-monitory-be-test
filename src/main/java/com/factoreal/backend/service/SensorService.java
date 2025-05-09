@@ -1,6 +1,7 @@
 package com.factoreal.backend.service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.factoreal.backend.strategy.enums.SensorType;
@@ -38,16 +39,19 @@ public class SensorService {
                 HttpStatus.NOT_FOUND, "존재하지 않는 공간 ID: " + dto.getZoneId()));
 
         // 2. Equip 존재 여부 확인
-        Equip equip = equipRepo.findById(dto.getEquipId())
-            .orElseThrow(() -> new ResponseStatusException(
-                HttpStatus.NOT_FOUND, "존재하지 않는 설비 ID: " + dto.getEquipId()));
+        Optional<Equip> equip = Optional.ofNullable(equipRepo.findByEquipId(dto.getEquipId())
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "존재하지 않는 설비 ID: " + dto.getEquipId())));
+        if(equip.isEmpty()) {
+            log.info("존재하지 않는 설비 ID");
 
+        }
         // 3. 센서 정보 저장
         Sensor sens = new Sensor();
         sens.setSensorId(dto.getSensorId());
         sens.setSensorType(SensorType.valueOf(dto.getSensorType()));
         sens.setZone(zone);
-        sens.setEquip(equip);
+        sens.setEquip(equip.get());
         return repo.save(sens);
     }
 

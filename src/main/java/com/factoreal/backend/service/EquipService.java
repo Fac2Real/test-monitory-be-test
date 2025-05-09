@@ -3,6 +3,8 @@ package com.factoreal.backend.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.factoreal.backend.dto.SensorDto;
+import com.factoreal.backend.entity.Sensor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -24,6 +26,30 @@ import lombok.RequiredArgsConstructor;
 public class EquipService {
     private final EquipRepository equipRepo;
     private final ZoneRepository zoneRepo;
+
+    // 설비 등록
+    @Transactional
+    public Equip saveEquip(EquipDto dto) {
+        Zone zone = zoneRepo.findById(dto.getZoneId())
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "존재하지 않는 공간 ID: " + dto.getZoneId()));
+        // 설비 정보 저장
+        Equip equips = new Equip();
+        equips.setEquipId(zone.getZoneId());
+        equips.setEquipName(dto.getEquipName());
+        equips.setZone(zone);
+        return equipRepo.save(equips);
+    }
+
+    public boolean duplicateEquip(String EquipName, String zoneId) {
+       Equip equip = getEquipByEquipNameAndZoneId(EquipName, zoneId);
+       return equip == null;
+    }
+
+    public Equip getEquipByEquipNameAndZoneId (String EquipName, String zoneId) {
+        Zone zone = zoneRepo.findByZoneId(zoneId);
+        return equipRepo.findByEquipNameAndZoneId(EquipName, zone);
+    }
 
     // 설비 생성
     @Transactional
