@@ -11,14 +11,20 @@ import com.factoreal.backend.strategy.RiskMessageProvider;
 import com.factoreal.backend.strategy.enums.AlarmEventDto;
 import com.factoreal.backend.strategy.enums.RiskLevel;
 import com.factoreal.backend.strategy.enums.SensorType;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.RestHighLevelClient;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @Service
@@ -33,6 +39,9 @@ public class KafkaConsumer {
     private final NotificationStrategyFactory factory;
     private final RiskMessageProvider messageProvider;
 
+    // ELK
+    private final RestHighLevelClient elasticsearchClient; // ELK client
+
     // 로그 기록용
     private final AbnormalLogService abnormalLogService;
 
@@ -44,7 +53,10 @@ public class KafkaConsumer {
             // equipId가 비어있고 zoneId는 존재할 때만 처리
             if ((dto.getEquipId()!=null) && (Objects.equals(dto.getEquipId(), dto.getZoneId()))) {
                 log.info("✅ 수신한 Kafka 메시지: " + message);
-
+                // #################################
+                // 비동기 ES 저장
+                // #################################
+                saveToElasticsearch(dto);
                 log.info("▶︎ 위험도 감지 start");
                 int dangerLevel = getDangerLevel(dto.getSensorType(), dto.getVal());
                 log.info("⚠️ 위험도 {} 센서 타입 : {} 감지됨. Zone: {}", dangerLevel, dto.getSensorType(), dto.getZoneId());
@@ -84,6 +96,23 @@ public class KafkaConsumer {
 
 
     }
+
+    // ✅ Elastic 비동기 저장
+    @Async
+    public void saveToElasticsearch(SensorKafkaDto dto) {
+        try {
+            Map<String, Object> map = objectMapper.convertValue(dto, new TypeReference<>() {});
+            map.put("timestamp", Instant.now().toString());  // 타임필드 추가
+
+            IndexRequest request = new IndexRequest("sensor-data").source(map);
+            elasticsearchClient.index(request, RequestOptions.DEFAULT);
+
+            log.info("✅ Elasticsearch 저장 완료: {}", dto.getSensorId());
+        } catch (Exception e) {
+            log.error("❌ Elasticsearch 저장 실패: {}", dto, e);
+        }
+    }
+
     @Async
     public void startAlarm(SensorKafkaDto sensorData,AbnormalLog abnormalLog, RiskLevel riskLevel) {
         AlarmEventDto alarmEventDto;
