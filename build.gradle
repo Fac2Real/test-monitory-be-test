@@ -68,7 +68,12 @@ dependencies {
 	implementation 'org.springframework.kafka:spring-kafka'
 	testImplementation 'org.springframework.kafka:spring-kafka-test'
 
-	tasks.named('test') {
+	// WebSocket
+	implementation 'org.springframework.boot:spring-boot-starter-websocket'
+
+	// ELK
+	implementation 'org.elasticsearch.client:elasticsearch-rest-high-level-client:7.17.21'
+}
+tasks.named('test') {
 		useJUnitPlatform()
-	}
 }
