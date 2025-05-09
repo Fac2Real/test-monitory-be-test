@@ -16,5 +16,8 @@ services:
       - "5601:5601"  # Kibana UI
     environment:
       - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - SERVER_HOST=0.0.0.0
+      - CSP_STRICT=false                      # ✅ CSP 완화
+      - XPACK_REPORTING_ENABLE=false          # (선택) 리포팅 비활성화로 속도 향상
     depends_on:
       - elasticsearch
