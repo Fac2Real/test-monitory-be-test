@@ -5,6 +5,7 @@ import com.factoreal.backend.entity.Worker;
 import com.factoreal.backend.repository.WorkerRepository;
 import com.factoreal.backend.strategy.enums.AlarmType;
 import com.factoreal.backend.strategy.enums.RiskLevel;
+import com.factoreal.backend.strategy.enums.SensorType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.localstack.LocalStackContainer;
@@ -48,11 +49,10 @@ class SmsNotificationStrategyTest {
                 .build();
         alarmEvent = new AlarmEvent(
                 UUID.randomUUID(),
-                "humid",
+                SensorType.humid.name(),
                 29.0f,
                 RiskLevel.WARNING,
                 Timestamp.valueOf(LocalDateTime.now()),
-                AlarmType.LOW_HUMIDITY.getTitle(),
                 AlarmType.LOW_HUMIDITY.getMessage(),
                 "Sensor"
                 );
