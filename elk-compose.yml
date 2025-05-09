@@ -8,6 +8,8 @@ services:
       - ES_JAVA_OPTS=-Xms512m -Xmx512m  # 💥 힙 메모리 줄이기
     ports:
       - "9200:9200"  # Elasticsearch API
+    volumes:
+      - es-data:/usr/share/elasticsearch/data
 
   kibana:
     image: docker.elastic.co/kibana/kibana:7.17.21
@@ -16,8 +18,12 @@ services:
       - "5601:5601"  # Kibana UI
     environment:
       - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-      - SERVER_HOST=0.0.0.0
-      - CSP_STRICT=false                      # ✅ CSP 완화
-      - XPACK_REPORTING_ENABLE=false          # (선택) 리포팅 비활성화로 속도 향상
     depends_on:
       - elasticsearch
+    volumes:
+      - ./kibana.yml:/usr/share/kibana/config/kibana.yml  # ✅ 커스텀 설정 적용
+
+
+volumes:
+  es-data:
+  kibana-data:
