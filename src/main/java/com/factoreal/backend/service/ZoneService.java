@@ -78,4 +78,8 @@ public class ZoneService {
                 .map(zone -> new ZoneDto(zone.getZoneId(), zone.getZoneName()))
                 .collect(Collectors.toList());
     }
+
+    public Zone getZone(String zoneId) {
+        return repo.findByZoneId(zoneId);
+    }
 }

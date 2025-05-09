@@ -1,6 +1,6 @@
 package com.factoreal.backend.strategy;
 
-import com.factoreal.backend.strategy.enums.AlarmEvent;
+import com.factoreal.backend.strategy.enums.AlarmEventDto;
 import com.factoreal.backend.entity.Worker;
 import com.factoreal.backend.strategy.enums.RiskLevel;
 import com.factoreal.backend.repository.WorkerRepository;
@@ -23,7 +23,7 @@ public class SmsNotificationStrategy implements NotificationStrategy {
 
     private static final String userId = "alarm-test";
     @Override
-    public void send(AlarmEvent alarmEvent) {
+    public void send(AlarmEventDto alarmEventDto) {
         log.info("📬 SMS Notification Strategy.");
         // Todo 공간에 있는 작업자 목록 가져오기
         // Wearable 앱이 선행되어야함...
@@ -35,7 +35,7 @@ public class SmsNotificationStrategy implements NotificationStrategy {
         }
         try{
             PublishRequest publishRequest = PublishRequest.builder()
-                    .message(alarmEvent.messageBody())
+                    .message(alarmEventDto.getMessageBody())
                     .phoneNumber(workerOptional.get().getPhoneNumber()) // 형식 (국가번호)전화번호 => +82 10-1234-1234
                     .build();
 

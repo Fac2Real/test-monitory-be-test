@@ -1,6 +1,7 @@
 package com.factoreal.backend.sender;
 
 import com.factoreal.backend.dto.ZoneDangerDto;
+import com.factoreal.backend.strategy.enums.AlarmEventDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
@@ -17,5 +18,11 @@ public class WebSocketSender {
     public void sendDangerLevel(String zoneId, String sensorType, int level) {
         ZoneDangerDto dangerDto = new ZoneDangerDto(zoneId,sensorType, level);
         messagingTemplate.convertAndSend("/topic/zone", dangerDto);
+    }
+    /**
+     *
+     */
+    public void sendDangerAlarm(AlarmEventDto alarmEventDto) {
+        messagingTemplate.convertAndSend("/topic/alarm", alarmEventDto);
     }
 }

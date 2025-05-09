@@ -1,6 +1,6 @@
 package com.factoreal.backend.strategy;
 
-import com.factoreal.backend.strategy.enums.AlarmEvent;
+import com.factoreal.backend.strategy.enums.AlarmEventDto;
 import com.factoreal.backend.strategy.enums.RiskLevel;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 // https://stir.tistory.com/516를 참고하여 구현
 public class WebPushNotificationStrategy implements NotificationStrategy {
     @Override
-    public void send(AlarmEvent alarmEvent) {
+    public void send(AlarmEventDto alarmEventDto) {
         log.info("🍿 Web Push Notification Strategy");
     }
 
