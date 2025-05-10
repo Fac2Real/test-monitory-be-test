@@ -3,6 +3,7 @@ package com.factoreal.backend.controller;
 import java.util.List;
 import java.util.Map;
 
+import com.factoreal.backend.dto.ZoneItemDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,12 +40,12 @@ public class ZoneController {
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
-    @PostMapping("/{zoneId}")
+    @PostMapping("/{zoneName}")
     @Operation(summary = "공간 정보 수정", description = "기존 공간의 이름을 수정합니다.")
     public ResponseEntity<ZoneDto> updateZone(
-            @PathVariable String zoneId,
+            @PathVariable String zoneName,
             @RequestBody ZoneUpdateDto dto) {
-        ZoneDto updated = service.updateZone(zoneId, dto);
+        ZoneDto updated = service.updateZone(zoneName, dto);
         return ResponseEntity.ok(updated);
     }
 
@@ -53,5 +54,11 @@ public class ZoneController {
     public ResponseEntity<List<ZoneDto>> listZones() {
         List<ZoneDto> list = service.getAllZones();
         return ResponseEntity.ok(list);
+    }
+
+    @GetMapping("/zoneitems")
+    @Operation(summary = "공간별 설비,센서 데이터 조회", description = "등록된 공간들의 각 정보를 조회합니다.")
+    public ResponseEntity<List<ZoneItemDto>> listZoneItems() {
+        return ResponseEntity.ok(service.getZoneItems());
     }
 }
