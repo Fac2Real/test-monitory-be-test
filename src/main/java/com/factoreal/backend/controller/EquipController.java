@@ -2,6 +2,7 @@ package com.factoreal.backend.controller;
 
 import java.util.List;
 
+import com.factoreal.backend.dto.ZoneDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -53,5 +54,12 @@ public class EquipController {
     public ResponseEntity<List<EquipDto>> listEquips() {
         return ResponseEntity.ok(service.getAllEquips());
     }
+
+//    // 공간별로 구분된 설비 조회
+//    @GetMapping("/zones")
+//    @Operation(summary = "공간별 설비·센서 매핑 조회", description = "모든 공간(zone)마다 환경센서·설비·설비센서를 구조화해 반환합니다.")
+//    public ResponseEntity<List<ZoneDto>> listEquipsByZone() {
+//        return ResponseEntity.ok(service.getEquipMapByZone());
+//    }
 
 }
