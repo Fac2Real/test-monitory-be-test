@@ -1,26 +1,18 @@
 package com.factoreal.backend.controller;
 
-import java.util.List;
-
-import com.factoreal.backend.dto.ZoneDto;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.factoreal.backend.dto.EquipCreateRequest;
 import com.factoreal.backend.dto.EquipDto;
 import com.factoreal.backend.dto.EquipUpdateDto;
 import com.factoreal.backend.service.EquipService;
-
 import io.swagger.v3.oas.annotations.Operation;
-import org.springframework.web.bind.annotation.RequestBody;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/equips")

@@ -1,22 +1,21 @@
 package com.factoreal.backend.service;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-import com.factoreal.backend.dto.*;
-import com.factoreal.backend.entity.Sensor;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
-
+import com.factoreal.backend.dto.EquipCreateRequest;
+import com.factoreal.backend.dto.EquipDto;
+import com.factoreal.backend.dto.EquipUpdateDto;
 import com.factoreal.backend.entity.Equip;
 import com.factoreal.backend.entity.Zone;
 import com.factoreal.backend.repository.EquipRepository;
 import com.factoreal.backend.repository.ZoneRepository;
 import com.factoreal.backend.util.EquipIdGenerator;
-
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor

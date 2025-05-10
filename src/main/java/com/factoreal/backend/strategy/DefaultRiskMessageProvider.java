@@ -11,17 +11,17 @@ public class DefaultRiskMessageProvider implements RiskMessageProvider {
         return switch (sensorType) {
             case temp -> switch (riskLevel) {
                 case INFO -> "온도가 정상 범위입니다.";
-                case WARNING -> "고온 주의! 온도가 35도를 초과했습니다.";
+                case WARNING -> "경고! 온도가 30도를 초과했습니다.";
                 case CRITICAL -> "위험! 온도가 50도를 초과했습니다.";
             };
             case humid -> switch (riskLevel) {
                 case INFO -> "습도가 정상 범위입니다.";
-                case WARNING -> "건조 주의! 습도가 30% 미만입니다.";
-                case CRITICAL -> "위험! 습도가 15% 이하입니다.";
+                case WARNING -> "경고! 습도가 50%을 초과했습니다.";
+                case CRITICAL -> "위험! 습도가 70%을 초과했습니다.";
             };
             case vibration -> switch (riskLevel) {
                 case INFO -> "진동이 정상 범위입니다.";
-                case WARNING -> "진동 주의! 5 이상 감지됨.";
+                case WARNING -> "주의! 진동이 5 이상으로 감지됨.";
                 case CRITICAL -> "위험! 진동이 10 이상으로 매우 심합니다.";
             };
             case dust -> switch (riskLevel) {

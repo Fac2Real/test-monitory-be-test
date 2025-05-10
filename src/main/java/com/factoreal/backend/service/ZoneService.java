@@ -139,4 +139,8 @@ public class ZoneService {
                 })
                 .toList();
     }
+
+    public Zone getZone(String zoneId) {
+        return repo.findByZoneId(zoneId);
+    }
 }

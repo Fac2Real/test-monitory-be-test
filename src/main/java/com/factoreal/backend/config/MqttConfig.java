@@ -17,7 +17,7 @@ public class MqttConfig {
         // 🟢 AWS IoT 브로커 주소 및 포트 설정
         String broker = "ssl://a2q1cmw33m6k7u-ats.iot.ap-northeast-2.amazonaws.com:8883";
         // 🟢 고유한 MQTT 클라이언트 ID 생성
-        String clientId = "SPRING_Minseok";
+        String clientId = "SPRING_KWYTEST";
         // 🔐 SSL 인증서 경로 설정
         SSLSocketFactory sslFactory;
         try {

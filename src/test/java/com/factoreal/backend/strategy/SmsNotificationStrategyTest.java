@@ -1,8 +1,8 @@
 package com.factoreal.backend.strategy;
 
-import com.factoreal.backend.strategy.enums.AlarmEvent;
 import com.factoreal.backend.entity.Worker;
 import com.factoreal.backend.repository.WorkerRepository;
+import com.factoreal.backend.strategy.enums.AlarmEventDto;
 import com.factoreal.backend.strategy.enums.AlarmType;
 import com.factoreal.backend.strategy.enums.RiskLevel;
 import com.factoreal.backend.strategy.enums.SensorType;
@@ -17,11 +17,8 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.sns.SnsClient;
 
 import java.sql.Timestamp;
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 
 import static org.mockito.Mockito.*;
 
@@ -34,7 +31,7 @@ class SmsNotificationStrategyTest {
     private SmsNotificationStrategy smsNotificationStrategy;
     private WorkerRepository workerRepository;
     private SnsClient snsClient;
-    private AlarmEvent alarmEvent;
+    private AlarmEventDto alarmEventDto;
     @BeforeEach
     void setUp() {
         // LocalStack SNS 클라이언트 생성
@@ -47,15 +44,14 @@ class SmsNotificationStrategyTest {
                 )
                 .region(Region.of(localstack.getRegion()))
                 .build();
-        alarmEvent = new AlarmEvent(
-                UUID.randomUUID(),
-                SensorType.humid.name(),
-                29.0f,
-                RiskLevel.WARNING,
-                Timestamp.valueOf(LocalDateTime.now()),
-                AlarmType.LOW_HUMIDITY.getMessage(),
-                "Sensor"
-                );
+        AlarmEventDto.builder()
+                .sensorType(SensorType.humid.name())
+                .sensorValue(29.0f)
+                .riskLevel(RiskLevel.WARNING)
+                .timestamp(Timestamp.valueOf(LocalDateTime.now()))
+                .messageBody(AlarmType.LOW_HUMIDITY.getMessage())
+                .source("Sensor")
+                .build();
         // Mock Repository
         workerRepository = mock(WorkerRepository.class);
 
@@ -71,7 +67,7 @@ class SmsNotificationStrategyTest {
         when(workerRepository.findById("user123")).thenReturn(Optional.of(worker));
 
         // when
-        smsNotificationStrategy.send(alarmEvent);
+        smsNotificationStrategy.send(alarmEventDto);
 
         // then
         verify(workerRepository, times(1)).findById("user123");
@@ -80,7 +76,7 @@ class SmsNotificationStrategyTest {
     @Test
     void send_sms_worker_not_found() {
         when(workerRepository.findById("not_found")).thenReturn(Optional.empty());
-        smsNotificationStrategy.send(alarmEvent);
+        smsNotificationStrategy.send(alarmEventDto);
         verify(workerRepository, times(1)).findById("not_found");
     }
 }
