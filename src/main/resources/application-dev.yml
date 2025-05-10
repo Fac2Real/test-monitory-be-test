@@ -1,4 +1,6 @@
 # ===============================
 # .env File Only Use in Dev. When Deploy use Environment Variable
 # ===============================
-spring.config.import=optional:file:.env[.properties]
+spring:
+  config:
+    import: optional:file:.env[.properties] 
