@@ -3,15 +3,12 @@ package com.factoreal.backend.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.factoreal.backend.dto.SensorDto;
+import com.factoreal.backend.dto.*;
 import com.factoreal.backend.entity.Sensor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.factoreal.backend.dto.EquipCreateRequest;
-import com.factoreal.backend.dto.EquipDto;
-import com.factoreal.backend.dto.EquipUpdateDto;
 import com.factoreal.backend.entity.Equip;
 import com.factoreal.backend.entity.Zone;
 import com.factoreal.backend.repository.EquipRepository;
@@ -41,15 +38,6 @@ public class EquipService {
         return equipRepo.save(equips);
     }
 
-    public boolean duplicateEquip(String EquipName, String zoneId) {
-       Equip equip = getEquipByEquipNameAndZoneId(EquipName, zoneId);
-       return equip == null;
-    }
-
-    public Equip getEquipByEquipNameAndZoneId (String EquipName, String zoneId) {
-        Zone zone = zoneRepo.findByZoneId(zoneId);
-        return equipRepo.findByEquipNameAndZoneId(EquipName, zone);
-    }
 
     // 설비 생성
     @Transactional
@@ -112,5 +100,4 @@ public class EquipService {
         })
         .collect(Collectors.toList());
     }
-    
 }

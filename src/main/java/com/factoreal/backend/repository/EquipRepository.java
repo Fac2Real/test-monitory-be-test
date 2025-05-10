@@ -8,12 +8,16 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.factoreal.backend.entity.Equip;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface EquipRepository extends JpaRepository<Equip, String> {
-    List<Equip> findByZoneZoneId(String zoneId);
-
     Optional<Equip> findByEquipId(String equipId);
 
-    @Query("SELECT e FROM Equip e WHERE e.equipName = :equipName AND e.zone = :zone")
-    Equip findByEquipNameAndZoneId(String equipName, Zone zone);
+    @Query("select e.equipName from Equip e where e.equipId = :equipId")
+    String findEquipNameByEquipId(@Param("equipId") String equipId);
+
+//    @Query("select e from Equip e where e.zone = :zone and e.equipId <> :zoneId")
+//    List<Equip> findFacilitiesByZone(@Param("zone") Zone zone);
+
+    List<Equip> findEquipsByZone(@Param("zone") Zone zone);
 }
