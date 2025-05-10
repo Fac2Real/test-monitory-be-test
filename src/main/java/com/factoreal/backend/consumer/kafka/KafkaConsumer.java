@@ -1,7 +1,9 @@
 package com.factoreal.backend.consumer.kafka;
 
 import com.factoreal.backend.dto.SensorKafkaDto;
+import com.factoreal.backend.dto.SystemLogDto;
 import com.factoreal.backend.sender.WebSocketSender;
+import com.factoreal.backend.service.ZoneService;
 import com.factoreal.backend.strategy.NotificationStrategy;
 import com.factoreal.backend.strategy.NotificationStrategyFactory;
 import com.factoreal.backend.strategy.RiskMessageProvider;
@@ -17,8 +19,11 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
 @Service
@@ -28,12 +33,16 @@ public class KafkaConsumer {
 
     private final ObjectMapper objectMapper;
     private final WebSocketSender webSocketSender;
+    private final ZoneService zoneService;
 
     // 알람 푸시 용
     private final NotificationStrategyFactory factory;
     private final RiskMessageProvider messageProvider;
 
-    @KafkaListener(topics = {"EQUIPMENT", "ENVIRONMENT"}, groupId = "monitory-consumer-group")
+    // 공간(zone)별로 마지막 위험도 저장하기 위한 Map (초기에는 위험도 -1)
+    private static final Map<String, Integer> lastDangerLevelMap = new ConcurrentHashMap<>();
+
+    @KafkaListener(topics = { "EQUIPMENT", "ENVIRONMENT" }, groupId = "monitory-consumer-group")
     public void consume(String message) {
 
         log.info("✅ 수신한 Kafka 메시지: " + message);
@@ -42,41 +51,45 @@ public class KafkaConsumer {
         // #################################
         try {
             SensorKafkaDto dto = objectMapper.readValue(message, SensorKafkaDto.class);
+            
+            // 1) 기존 알람/히트맵 처리
             startAlarm(dto);
-            // equipId와 zoneId가 같을 때만 처리 - 공간 센서(not 설비 센서)
-            if (dto.getEquipId() != null && dto.getEquipId().equals(dto.getZoneId()) && dto.getZoneId() != null) {
+
+            // 2) 시스템 로그 (위험도 변화 감지 -> 비동기 전송)
+            sendSystemLog(dto);
+
+            // 3) 공간 센서일 때만 히트맵용 웹소켓 전송
+            if (dto.getEquipId() != null && dto.getZoneId() != null && dto.getEquipId().equals(dto.getZoneId())) {
 
                 log.info("▶︎ 위험도 감지 start");
                 int dangerLevel = getDangerLevel(dto.getSensorType(), dto.getVal());
 
-                if (dangerLevel > 0) {
+                if (dangerLevel > 0) { // 위험도가 1 이상이면 프론트에 알리기
                     log.info("⚠️ 위험도 {} 센서 타입 : {} 감지됨. Zone: {}", dangerLevel, dto.getSensorType(), dto.getZoneId());
                     webSocketSender.sendDangerLevel(dto.getZoneId(), dto.getSensorType(), dangerLevel);
                 }
+
             }
-
-
 
         } catch (Exception e) {
             log.error("❌ Kafka 메시지 파싱 실패: {}", message, e);
         }
 
-
     }
-    
+
     @Async
-    public void startAlarm(SensorKafkaDto sensorData){
+    public void startAlarm(SensorKafkaDto sensorData) {
         AlarmEvent alarmEvent;
-        try{
+        try {
             alarmEvent = generateAlarmDto(sensorData);
-        }catch (Exception e){
+        } catch (Exception e) {
             log.error("Error converting Kafka message: {}", e);
             return;
         }
         try {
             // 2. 생성된 AlarmEvent DTO 객체를 사용하여 알람 처리
 
-            log.info("alarmEvent: {}",alarmEvent.toString());
+            log.info("alarmEvent: {}", alarmEvent.toString());
             processAlarmEvent(alarmEvent);
 
         } catch (Exception e) {
@@ -85,83 +98,115 @@ public class KafkaConsumer {
         }
     }
 
+    // 공간(zone)별 위험도 변경 시 시스템 로그 전송
+    @Async
+    public void sendSystemLog(SensorKafkaDto dto) {
+        String zoneId = dto.getZoneId();
+        int newLevel = getDangerLevel(dto.getSensorType(), dto.getVal());
+        int oldLevel = lastDangerLevelMap.getOrDefault(zoneId, -1);
+
+        // 변경이 없으면 로그 전송 안함
+        if (newLevel == oldLevel) {
+            lastDangerLevelMap.put(zoneId, newLevel);
+            return;
+        }
+        lastDangerLevelMap.put(zoneId, newLevel); // 변경이 있으니 해당 공간의 마지막 위험도 업데이트
+
+        // zoneName 조회
+        String zoneName = zoneService.getAllZones().stream()
+                .filter(zone -> zone.getZoneId().equals(zoneId))
+                .findFirst()
+                .map(zone -> zone.getZoneName())
+                .orElse("");
+
+        // ISO-8601 포맷 타임스탬프 ex) 2025-05-09T16:22:45
+        String timestamp = LocalDateTime.now()
+                .format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+
+        SystemLogDto logDto = new SystemLogDto(
+                zoneId, zoneName,
+                dto.getSensorType(),
+                newLevel,
+                timestamp);
+
+        webSocketSender.sendSystemLog(logDto);
+    }
+
     private static int getDangerLevel(String sensorType, double value) { // 위험도 계산 메서드
         return switch (sensorType) { // 센서 타입에 따른 위험도 계산
             case "temp" -> { // 온도 위험도 기준 (KOSHA: https://www.kosha.or.kr/)
-                if (value > 40 || value < -35)        // >40℃ 또는 < -35℃ → 위험 (작업 중단 권고)
+                if (value > 40 || value < -35) // >40℃ 또는 < -35℃ → 위험 (작업 중단 권고)
                     yield 2;
-                else if (value > 30 || value < 25)   // >30℃ 또는 < 25℃ → 주의 (작업 제한 또는 휴식 권고)
+                else if (value > 30 || value < 25) // >30℃ 또는 < 25℃ → 주의 (작업 제한 또는 휴식 권고)
                     yield 1;
-                else                                 // 25℃ ≤ value ≤ 30℃ → 안전 (권장 18~21℃)
+                else // 25℃ ≤ value ≤ 30℃ → 안전 (권장 18~21℃)
                     yield 0;
             }
-            
+
             case "humid" -> { // 상대습도 위험도 기준 (OSHA, ACGIH TLV®, NIOSH)
-                if (value >= 80)             // RH ≥ 80% → 위험
+                if (value >= 80) // RH ≥ 80% → 위험
                     yield 2;
-                else if (value >= 60)        // 60% ≤ RH < 80% → 주의
+                else if (value >= 60) // 60% ≤ RH < 80% → 주의
                     yield 1;
-                else                         // RH < 60% → 안전
+                else // RH < 60% → 안전
                     yield 0;
             }
-            
+
             case "vibration" -> { // 진동 위험도 기준 (ISO 10816-3)
-                if (value > 7.1)            // >7.1 mm/s → 위험 (2)
+                if (value > 7.1) // >7.1 mm/s → 위험
                     yield 2;
-                else if (value > 2.8)       // >2.8 mm/s → 주의 (1)
+                else if (value > 2.8) // >2.8 mm/s → 주의
                     yield 1;
-                else                        // ≤2.8 mm/s → 안전 (0)
+                else // ≤2.8 mm/s → 안전
                     yield 0;
             }
 
             case "current" -> { // 전류 위험도 기준 (KEPCO)
-                if (value >= 30)        // ≥30 mA → 위험 (강한 경련, 심실세동 및 사망 위험)
+                if (value >= 30) // ≥30 mA → 위험 (강한 경련, 심실세동 및 사망 위험)
                     yield 2;
-                else if (value >= 7)    // ≥7 mA → 주의 (고통 한계 전류, 불수전류)
+                else if (value >= 7) // ≥7 mA → 주의 (고통 한계 전류, 불수전류)
                     yield 1;
-                else                    // <7 mA → 안전 (감지전류 수준)
+                else // <7 mA → 안전 (감지전류 수준)
                     yield 0;
             }
 
             case "dust" -> { // PM2.5 위험도 기준 (고용노동부)
-                if (value >= 150)              // ≥ 150㎍/㎥ → 위험 (2)
+                if (value >= 150) // ≥ 150㎍/㎥ → 위험
                     yield 2;
-                else if (value >= 75)          // ≥ 75㎍/㎥ → 주의 (1)
+                else if (value >= 75) // ≥ 75㎍/㎥ → 주의
                     yield 1;
-                else                            // < 75㎍/㎥ → 안전 (0)
+                else // < 75㎍/㎥ → 안전
                     yield 0;
             }
-            
+
             // 그 외 센서 타입은 안전
             default -> 0;
-        }; // switch 끝
+        };
     }
 
-    private AlarmEvent generateAlarmDto(SensorKafkaDto data) throws Exception{
+    private AlarmEvent generateAlarmDto(SensorKafkaDto data) throws Exception {
         Stream<SensorType> sensorTypes = Stream.of(SensorType.values());
 
         SensorType sensorType = sensorTypes.filter(
-                s -> s.name().equals(data.getSensorType())
-        ).findFirst().orElse(null);
+                s -> s.name().equals(data.getSensorType())).findFirst().orElse(null);
 
         if (sensorType == null) {
             throw new Exception("SensorType not found");
         }
 
-        int dangerLevel = KafkaConsumer.getDangerLevel(sensorType.name(),data.getVal());
+        int dangerLevel = KafkaConsumer.getDangerLevel(sensorType.name(), data.getVal());
         RiskLevel riskLevel = RiskLevel.fromPriority(dangerLevel);
-        String source = data.getZoneId().equals(data.getEquipId()) ? "공간 센서":"설비 센서";
+        String source = data.getZoneId().equals(data.getEquipId()) ? "공간 센서" : "설비 센서";
 
         // 위험 레벨 별 알람 객체 생성.
-        String messageBody = messageProvider.getMessage(sensorType,riskLevel);
-
+        String messageBody = messageProvider.getMessage(sensorType, riskLevel);
 
         // 알람 이벤트 객체 반환.
         return AlarmEvent.builder()
                 .eventId(UUID.randomUUID())
                 .sensorType(String.valueOf(sensorType))
                 .sensorValue(data.getVal())
-                .messageBody(messageProvider.getMessage(sensorType,riskLevel))
+                .messageBody(messageProvider.getMessage(sensorType, riskLevel))
                 .source(source)
                 .riskLevel(riskLevel)
                 .timestamp(Timestamp.valueOf(LocalDateTime.now()))
@@ -179,7 +224,8 @@ public class KafkaConsumer {
             RiskLevel entityRiskLevel = mapDtoSeverityToEntityRiskLevel(alarmEventDto.riskLevel());
 
             if (entityRiskLevel == null) {
-                log.warn("Could not map DTO severity '{}' to Entity RiskLevel. Skipping notification.", alarmEventDto.riskLevel());
+                log.warn("Could not map DTO severity '{}' to Entity RiskLevel. Skipping notification.",
+                        alarmEventDto.riskLevel());
                 // TODO: 매핑 실패 시 처리 로직 추가
                 return;
             }
@@ -189,7 +235,7 @@ public class KafkaConsumer {
             // 3. Factory를 사용하여 매핑된 Entity RiskLevel에 해당하는 NotificationStrategy를 가져와 실행
             List<NotificationStrategy> notificationStrategyList = factory.getStrategiesForLevel(entityRiskLevel);
 
-            log.info("💡Notification strategy executed for AlarmEvent. \n{}",alarmEventDto.toString());
+            log.info("💡Notification strategy executed for AlarmEvent. \n{}", alarmEventDto.toString());
             // 4. 알람 객체의 값으로 전략별 알람 송신.
             notificationStrategyList.forEach(notificationStrategy -> notificationStrategy.send(alarmEventDto));
 
