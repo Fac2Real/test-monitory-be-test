@@ -1,12 +1,12 @@
-name: Test and Build Image to ECR
+name: Build and Deploy to EC2
 
 on:
-  pull_request:
+  push:
     branches:
-      - main
+      - fix/21-workflow-ec2
 
 jobs:
-  test:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
@@ -18,20 +18,6 @@ jobs:
         with:
           java-version: '17'
           distribution: 'corretto'
-
-      - name: Cache Gradle packages
-        uses: actions/cache@v3
-        with:
-          path: ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle
-
-      - name: Grant execute permission for gradlew
-        run: chmod +x ./gradlew
-
-      - name: Test
-        run: ./gradlew test
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
@@ -52,3 +38,14 @@ jobs:
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+#    - name: Deploy on EC2 using docker-compose
+#      uses: appleboy/ssh-action@v1.0.0
+#      with:
+#        host: ${{ secrets.EC2_HOST }}
+#        username: ${{ secrets.EC2_USER }}
+#        key: ${{ secrets.EC2_SSH_KEY }}
+#        script: |
+#          cd /home/ubuntu/datastream
+#          aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin ${{ secrets.AWS_ECR_REGISTRY }}
+#          docker-compose pull
+#          docker-compose -f docker-compose-backend.yml up -d
