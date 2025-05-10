@@ -10,14 +10,20 @@ import com.factoreal.backend.strategy.RiskMessageProvider;
 import com.factoreal.backend.strategy.enums.AlarmEvent;
 import com.factoreal.backend.strategy.enums.RiskLevel;
 import com.factoreal.backend.strategy.enums.SensorType;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.RestHighLevelClient;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -42,7 +48,11 @@ public class KafkaConsumer {
     // 공간(zone)별로 마지막 위험도 저장하기 위한 Map (초기에는 위험도 -1)
     private static final Map<String, Integer> lastDangerLevelMap = new ConcurrentHashMap<>();
 
-    @KafkaListener(topics = { "EQUIPMENT", "ENVIRONMENT" }, groupId = "monitory-consumer-group")
+    // ELK
+    private final RestHighLevelClient elasticsearchClient; // ELK client
+
+    //    @KafkaListener(topics = {"EQUIPMENT", "ENVIRONMENT"}, groupId = "monitory-consumer-group-1")
+    @KafkaListener(topics = {"EQUIPMENT", "ENVIRONMENT"}, groupId = "${spring.kafka.consumer.group-id:danger-alert-group}")
     public void consume(String message) {
 
         log.info("✅ 수신한 Kafka 메시지: " + message);
@@ -52,13 +62,16 @@ public class KafkaConsumer {
         try {
             SensorKafkaDto dto = objectMapper.readValue(message, SensorKafkaDto.class);
             
-            // 1) 기존 알람/히트맵 처리
+            // 기존 알람/히트맵 처리
             startAlarm(dto);
 
-            // 2) 시스템 로그 (위험도 변화 감지 -> 비동기 전송)
+            // 시스템 로그 (위험도 변화 감지 -> 비동기 전송)
             sendSystemLog(dto);
 
-            // 3) 공간 센서일 때만 히트맵용 웹소켓 전송
+            // 비동기 ES 저장
+            saveToElasticsearch(dto);
+
+            // 공간 센서일 때만 히트맵용 웹소켓 전송
             if (dto.getEquipId() != null && dto.getZoneId() != null && dto.getEquipId().equals(dto.getZoneId())) {
 
                 log.info("▶︎ 위험도 감지 start");
@@ -75,6 +88,22 @@ public class KafkaConsumer {
             log.error("❌ Kafka 메시지 파싱 실패: {}", message, e);
         }
 
+    }
+
+    // ✅ Elastic 비동기 저장
+    @Async
+    public void saveToElasticsearch(SensorKafkaDto dto) {
+        try {
+            Map<String, Object> map = objectMapper.convertValue(dto, new TypeReference<>() {});
+            map.put("timestamp", Instant.now().toString());  // 타임필드 추가
+
+            IndexRequest request = new IndexRequest("sensor-data").source(map);
+            elasticsearchClient.index(request, RequestOptions.DEFAULT);
+
+            log.info("✅ Elasticsearch 저장 완료: {}", dto.getSensorId());
+        } catch (Exception e) {
+            log.error("❌ Elasticsearch 저장 실패: {}", dto, e);
+        }
     }
 
     @Async

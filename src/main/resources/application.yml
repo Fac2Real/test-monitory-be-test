@@ -58,7 +58,7 @@ spring:
   # kafka
   # ===============================
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: 43.200.39.139:9092
     consumer:
       group-id: monitory-consumer-group
       auto-offset-reset: earliest
