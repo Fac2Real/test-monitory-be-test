@@ -5,4 +5,6 @@ pipeline {
       steps {
         echo "Hello from JenkinsFile"
       }
+    }
+}
 }
