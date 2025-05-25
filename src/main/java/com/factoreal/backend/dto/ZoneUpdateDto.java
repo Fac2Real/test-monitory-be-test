@@ -12,3 +12,4 @@ import lombok.Setter;
 public class ZoneUpdateDto {
     private String zoneName; // 수정할 공간명
 }
+
